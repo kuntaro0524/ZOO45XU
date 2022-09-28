@@ -23,16 +23,15 @@ import KUMA
 import CrystalList
 import Date
 import DiffscanMaster
-
 from html_log_maker import ZooHtmlLog
 
 import logging
 import logging.config
 
 def check_abort(lm):
-    print "Abort check"
+    print("Abort check")
     ret = lm.isAbort()
-    if ret: print "ABORTABORT"
+    if ret: print("ABORTABORT")
     return ret
 # check_abort()
 
@@ -42,7 +41,6 @@ def check_abort(lm):
 
 class ZooNavigator():
     def __init__(self, zoo, ms, esa_csv, is_renew_db=False):
-        print "ZooNavigator was called."
         # From arguments
         self.zoo = zoo
         self.esa_csv = esa_csv
@@ -688,7 +686,7 @@ class ZooNavigator():
             if self.dump_recov.checkAndRecover(cond['wavelength']) == False:
                 # 2019/04/21 K.Hirata Skipped at BL45XU
                 # self.bsc.changeBeamsizeHV(cond['raster_hbeam'],cond['raster_vbeam'])
-                print "skipping change beam size"
+                print("skipping change beam size")
 
         # Check point of 'skipping' this loop
         # check 'isSkip' in zoo.db
@@ -1056,7 +1054,6 @@ class ZooNavigator():
             beamsizeconf = BeamsizeConfig.BeamsizeConfig(self.config_dir)
             flux = beamsizeconf.getFluxAtWavelength(cond['ds_hbeam'], cond['ds_vbeam'], cond['wavelength'])
             self.logger.info("Flux value is read from beamsize.conf: %5.2e."% flux)
-            #self.logger.info()
         else:
             flux = self.phosec_meas
             self.logger.info("Single: Beam size = %5.2f %5.2f um Measured flux : %5.2e" % (cond['ds_hbeam'], cond['ds_vbeam'], flux))
@@ -1085,7 +1082,7 @@ class ZooNavigator():
         self.data_proc_file.flush()
 
         # Disconnecting capture in this loop's 'capture' instance
-        print "Disconnecting capture"
+        print("Disconnecting capture")
         self.lm.closeCapture()
 
     # collectSingle
@@ -1095,11 +1092,10 @@ class ZooNavigator():
     def collectHelical(self, trayid, pinid, prefix, cond, sphi):
         o_index = cond['o_index']
         # Beamsize
-        print "now moving to the beam size to raster scan..."
-        print "Liar: beam size should be changed by BSS"
+        print("now moving to the beam size to raster scan...")
+        print("Liar: beam size should be changed by BSS")
         # self.bsc.changeBeamsizeHV(cond['raster_hbeam'],cond['raster_vbeam'])
 
-        # Initial 2D scan
         scan_id = "2d"
         gxyz = self.sx, self.sy, self.sz
         # Scan step is set to the same to the beam size
@@ -1169,7 +1165,6 @@ class ZooNavigator():
         o_index = cond['o_index']
         # Beamsize
         print "now moving to the beam size to raster scan..."
-
         # Initial 2D scan
         scan_id = "2d"
         # is this required? 2021/06/02 K.Hirata

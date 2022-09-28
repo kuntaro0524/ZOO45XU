@@ -574,7 +574,6 @@ class Zoo:
         recstr = self.bssr.recv(8000)
         print(recstr)
 
-
 if __name__ == "__main__":
     zoo=Zoo()
     zoo.connect()

@@ -47,12 +47,20 @@ if __name__ == "__main__":
             # navi=ZooNavigator.ZooNavigator(zoo,ms,esa_csv,is_renew_db=False)
             # n_pins = navi.goAround(input_file)
         total_pins += n_pins
+        # The final pin should be unmounted before changing CSV file.
+        zoo.dismountCurrentPin()
+        # SPACE cleaning after 1 CSV file
+        zoo.cleaning()
 
-    if total_pins == 0:
+    if total_pins == 0 and isSkipNoPins:
         logger.info("ZOO did not process any pins")
     else:
         logger.info("Start cleaning after the measurements")
+        # Dismount the last pin on the goniometer
         zoo.dismountCurrentPin()
+        # Dismount all pucks in SPACE
+        pe.unmountAllpucksFromSPACE()
+        # SPACE cleaning
         zoo.cleaning()
 
     zoo.disconnect()
