@@ -6,7 +6,6 @@ import datetime
 import DiffscanLog
 import SummaryDat
 import Crystal
-<<<<<<< HEAD
 import cv2
 import copy
 import logging
@@ -14,12 +13,6 @@ import LogString
 
 class AnaHeatmap:
     def __init__(self, scan_path):
-=======
-
-
-class AnaHeatmap:
-    def __init__(self, scan_path, cxyz, phi):
->>>>>>> origin/puck_exchange
         self.scan_path = scan_path
         self.isRead = False
         self.isKind = False
@@ -27,7 +20,6 @@ class AnaHeatmap:
         self.isScoreAbove = False
         self.diffscan_path = "%s/" % self.scan_path
         self.summarydat_path = "%s/_spotfinder/" % self.scan_path
-<<<<<<< HEAD
 
         # AnaHeatmap log file
         FORMAT = '%(asctime)-15s %(module)s %(levelname)-8s %(lineno)s %(funcName)s %(message)s'
@@ -36,14 +28,6 @@ class AnaHeatmap:
 
         # DEBUG option
         self.debug = True
-=======
-        self.DEBUG = False
-        self.cen_xyz = cxyz  # Goniometer coordinate of this scan
-        self.phi = phi
-
-        # DEBUG option
-        self.debug = False
->>>>>>> origin/puck_exchange
 
         # Threshold for min/max score
         # Crystals with core ranging self.min_score to self.max_score
@@ -55,11 +39,7 @@ class AnaHeatmap:
         self.isPrep = False
         self.crysize_mm = 0.015
 
-<<<<<<< HEAD
         self.timeout_for_summarydat = 600.0  # [sec]
-=======
-        self.timeout_for_summarydat = 600.0 #[sec]
->>>>>>> origin/puck_exchange
 
     def getDiffscanPath(self):
         return self.diffscan_path
@@ -87,11 +67,7 @@ class AnaHeatmap:
 
         # From summary.dat
         # score heat map will be extracted
-<<<<<<< HEAD
         sumdat = SummaryDat.SummaryDat(self.summarydat_path, self.nv, self.nh)
-=======
-        sumdat = SummaryDat.SummaryDat(self.summarydat_path, self.cen_xyz, self.phi, self.nv, self.nh)
->>>>>>> origin/puck_exchange
         sumdat.readSummary(prefix, nimages_all, 1.00, timeout=self.timeout_for_summarydat)
         # Score is arrayed to numpy.ndarray[N_Vertical,N_Horizontal]
         # 'SummaryDat' class sorts lines along with the image number
@@ -112,7 +88,6 @@ class AnaHeatmap:
 
         return self.heatmap
 
-<<<<<<< HEAD
     def makeBinMap(self, prefix, outimage):
         # Preparation of self.heatmap
         if self.isPrep == False:
@@ -203,8 +178,6 @@ class AnaHeatmap:
 
         return origin_new, vvec_new, hvec_new
 
-=======
->>>>>>> origin/puck_exchange
     def makeCheckMaps(self, prefix):
         # Preparation of self.heatmap
         if self.isPrep == False:
@@ -236,11 +209,7 @@ class AnaHeatmap:
         # Making numpy array for checking map and tree
         kdtree_map = numpy.array(kdtree_map_array)
         check_map = numpy.reshape(numpy.array(check_map_array), (self.nv, self.nh, 6))
-<<<<<<< HEAD
         print "TreeMap and CheckMap shape=", kdtree_map.shape, check_map.shape
-=======
-        print "TreeMap and CheckMap shep=", kdtree_map.shape, check_map.shape
->>>>>>> origin/puck_exchange
         kdtree = scipy.spatial.cKDTree(kdtree_map)
 
         return kdtree_map, check_map, kdtree
@@ -311,11 +280,7 @@ class AnaHeatmap:
                 crystal.addGrid(tx, ty, tz, h_index, v_index, score)
                 if self.debug:
                     ofile.write("%8.3f %8.3f %8.3f %5d %5d %5d\n" % (
-<<<<<<< HEAD
                         tmpxyz[2], tmpxyz[3], tmpxyz[4], v_index, h_index, check_score))
-=======
-                    tmpxyz[2], tmpxyz[3], tmpxyz[4], v_index, h_index, check_score))
->>>>>>> origin/puck_exchange
             # append Crystal class to the crystal_list
             crystal_array.append(crystal)
 
@@ -326,11 +291,6 @@ class AnaHeatmap:
 
         return crystal_array
 
-<<<<<<< HEAD
-=======
-    # searchMulti
-
->>>>>>> origin/puck_exchange
     # searchPixelBunch
     # mode: multiple crystal (successive pixel maps) above score
     # Function implemented
@@ -429,7 +389,6 @@ class AnaHeatmap:
 
         return crystal_array
 
-<<<<<<< HEAD
     def getGonioXYZat(self, nv, nh):
         junk0, junk1, x0, y0, z0, score = self.heatmap[nv, nh, :]
         return (x0,y0,z0)
@@ -483,8 +442,6 @@ class AnaHeatmap:
 
         print "HEATMAP", self.heatmap[nv,nh,:]
 
-=======
->>>>>>> origin/puck_exchange
     def process_cycle(self, check_map, kdtree_map, kdtree, target_indices):
         cycle_list = []
         for new_core in target_indices:
@@ -670,47 +627,6 @@ class AnaHeatmap:
             target_corner = lu
         return target_corner
 
-<<<<<<< HEAD
-=======
-    def findNearestGrid(self, thresh_score, prefix, target_corner, raster_path, kind="n_spots"):
-        def calcDistance(code1, code2):
-            x1, y1 = code1
-            x2, y2 = code2
-            dx = x1 - x2
-            dy = y1 - y2
-            dist = math.sqrt(dx * dx + dy * dy)
-            return dist
-
-        # Picking grids above thresh_score
-        self.min_score = thresh_score
-        self.reProcess(prefix, kind)
-
-        print "LENGTH of GOOD SCORES=", len(self.score_good)
-        if len(self.score_good) == 0:
-            raise MyException.MyException("findNearestGrid: No good grids.")
-
-        # All of grids in this scan will be analyzed
-        shortest_dist = 9999.9999
-        for i in numpy.arange(0, len(self.score_good)):
-            x1, y1, score1, imgnum = self.score_good[i]
-            curr_xy = x1, y1
-            tmp_dist = calcDistance(curr_xy, target_corner)
-            print "Checked and distance", x1, y1, tmp_dist
-            if tmp_dist < shortest_dist:
-                real_x = x1
-                real_y = y1
-                real_i = imgnum
-                shortest_dist = tmp_dist
-
-                x, y, z = self.cen_xyz
-                crycode = CrystalSpot.CrystalSpot(x, y, z, self.phi)
-        crycode.setDiffscanLog(raster_path)
-        fx, fy, fz = crycode.getXYZ(real_i)
-
-        print "findNearestGrid:", fx, fy, fz
-        return fx, fy, fz
-
->>>>>>> origin/puck_exchange
     def make2Dmap(self):
         # step x
         self.step_x = self.x[0] - self.x[1]
@@ -757,10 +673,6 @@ class AnaHeatmap:
                     rlp, k=300, p=1, distance_upper_bound=0.011)
             # Bunch of processing
             print "RLP=", rlp
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/puck_exchange
             print "DIST=", dist
             print "INDX=", idx
             for (d, i) in zip(dist, idx):
@@ -795,7 +707,6 @@ class AnaHeatmap:
 
 
 if __name__ == "__main__":
-<<<<<<< HEAD
     phi = 0.0
     prefix = "2d"
     # scan_path=sys.argv[1]
@@ -836,31 +747,3 @@ if __name__ == "__main__":
     # ahm.ana1Dscan(prefix)
     # def getBestCrystalCode(self,option="gravity"):
     """
-=======
-    cxyz = (0.7379, -11.5623, -0.0629)
-    phi = 0.0
-    scan_path = "/isilon/users/kimada/kimada/190714_BL45XU_ZOO/CPS0734-03/scan00/lv00/"
-    scan_path = "/isilon/users/admin45/admin45/AutoUsers/190723_BL45XU_daiichi_sankyo/CPS1173-16/scan01/2d"
-    # scan_path=sys.argv[1]
-
-    ahm = AnaHeatmap(scan_path, cxyz, phi)
-
-    min_score = int(sys.argv[1])
-    max_score = int(sys.argv[2])
-
-    # Multi crystal 
-    #cry_size=float(sys.argv[3])
-    #ahm.setMinMax(min_score,max_score)
-    #ahm.searchMulti("TEST",cry_size)
-
-    # Helical crystal
-    # cry_size=float(sys.argv[2])
-    #ahm.setMinMax(min_score, max_score)
-
-    crystal_array = ahm.searchPixelBunch(True)
-    for cry in crystal_array:
-        cry.printAll()
-    # print cry.getTotalScore(),cry.getRoughEdges(),cry.getCryHsize()
-    # ahm.ana1Dscan(prefix)
-    # def getBestCrystalCode(self,option="gravity"):
->>>>>>> origin/puck_exchange

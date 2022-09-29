@@ -31,11 +31,7 @@ class BeamsizeConfig:
 
     # BL41XU is using their specific settings
     def readConfig(self):
-<<<<<<< HEAD
         print "%s was read" % self.configfile
-=======
-        print("%s was read" % self.configfile)
->>>>>>> origin/puck_exchange
         lines = open(self.configfile, "r").readlines()
 
         rflag = False
@@ -63,11 +59,7 @@ class BeamsizeConfig:
 
         if self.debug == True:
             for b in beam_params:
-<<<<<<< HEAD
-                print b
-=======
                 print(b)
->>>>>>> origin/puck_exchange
         beam_index = 1
         self.beamsize_flux_list = []
 
@@ -103,11 +95,7 @@ class BeamsizeConfig:
                     param_list = param_name, param_value, param_unit
                     object_param_list.append(param_list)
                     if self.debug == True:
-<<<<<<< HEAD
-                        print object_param_list
-=======
                         print(object_param_list)
->>>>>>> origin/puck_exchange
 
                 if defstr.rfind("tc1_slit_1_height") != -1:
                     cols = defstr.split()
@@ -123,11 +111,7 @@ class BeamsizeConfig:
                     cols = defstr.split(':')
                     valstr = cols[1].replace("[", "").replace("]", "")
                     self.flux_const = float(valstr)
-<<<<<<< HEAD
-                    print "Flux constant is overrided to %9.1e" % self.flux_const
-=======
                     print("Flux constant is overrided to %9.1e" % self.flux_const)
->>>>>>> origin/puck_exchange
 
             self.param_list.append(object_param_list)
 
@@ -136,11 +120,7 @@ class BeamsizeConfig:
 
         if self.debug == True:
             for bf, pm in zip(self.beamsize_flux_list, self.param_list):
-<<<<<<< HEAD
-                print bf, pm
-=======
                 print(bf, pm)
->>>>>>> origin/puck_exchange
 
     # Coded for BL41XU parameter list
     def getFluxAtWavelength(self, hsize, vsize, wavelength):
@@ -149,21 +129,13 @@ class BeamsizeConfig:
 
         #print len(self.beamsize_flux_list)
         #print self.beamsize_flux_list
-<<<<<<< HEAD
-        print "Assessing beamsize ", hsize, vsize
-=======
         print("Assessing beamsize ", hsize, vsize)
->>>>>>> origin/puck_exchange
         for (h_beam, v_beam), flux_wave_list in self.beamsize_flux_list:
             if h_beam == hsize and v_beam == vsize:
                 flux_list = flux_wave_list
                 break
 
-<<<<<<< HEAD
-        print flux_list
-=======
         print(flux_list)
->>>>>>> origin/puck_exchange
         x = np.array(self.wl_list)
         y = np.array(flux_list)
 
@@ -242,11 +214,7 @@ class BeamsizeConfig:
         for beamparams in self.beamsize:
             bindex, h_beam, v_beam = beamparams
             flux_1A = self.getFluxAtWavelength(h_beam, v_beam, 1.0000)
-<<<<<<< HEAD
-            print flux_1A
-=======
             print(flux_1A)
->>>>>>> origin/puck_exchange
             flux_list.append(flux_1A)
         return flux_list
 
@@ -267,26 +235,15 @@ if __name__ == "__main__":
     bsc = BeamsizeConfig(config_dir)
     # bsc.readConfig()
     tw, th, bs, ff = bsc.getBeamParamList()
-<<<<<<< HEAD
-    print "LEN=",len(bs)
-=======
     print("LEN=",len(bs))
->>>>>>> origin/puck_exchange
     index = 1
     for b in bs:
         p, q, r = b
         #print "%5.1f (H) x %5.1f (V)um %5.3e" % (q, r, ff)
-<<<<<<< HEAD
-        print "ALL=",p,q,r
-        #print bsc.getBeamsizeAtIndex(0)
-    print "FLUX=",bsc.getFluxListForKUMA()
-    print "EEEEEEEEEEEEE=%e"%bsc.getFluxAtWavelength(20,20,1.4)
-=======
         print("ALL=",p,q,r)
         #print bsc.getBeamsizeAtIndex(0)
     print("FLUX=",bsc.getFluxListForKUMA())
     print("EEEEEEEEEEEEE=%e"%bsc.getFluxAtWavelength(20,20,1.4))
->>>>>>> origin/puck_exchange
 
 # tcs_hmm=0.1
 # tcs_vmm=0.1
