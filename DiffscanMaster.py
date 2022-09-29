@@ -96,9 +96,6 @@ class NOU():
     def sokuteiSuru(self, scan_path, cond, prefix):
         # Prepare 'data collection blocks'
         dc_blocks = self.junbiSuru(scan_path, cond, prefix)
-        # number of all data collection blocks to be collected
-        n_dc_blocks = len(dc_blocks)
-        self.logger.info(">> All of DC blocks: %5d" % n_dc_blocks)
         # The number of collected datasets (log)
         n_datasets = 0
 
@@ -113,8 +110,6 @@ class NOU():
             except Exception as e:
                 self.logger.info(self.commentException(e.args))
                 self.logger.info(">> DC_INDEX=%5d data collection failed." % dc_index)
-            # This logger is quite important to investigate the exception sequence.
-            self.logger.info("Go to the next sample.")
             # Check the time for data collection
             consumed_minutes = self.sw.calcTimeFrom("start") / 60.0 # [mins]
             if consumed_minutes > self.time_limit:
@@ -522,10 +517,10 @@ class NOU():
             return -1
 
         if self.debug==True: 
-            print("OOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
+            print "OOOOOOOOOOOOOOOOOOOOOOOOOOOOO"
             for c in dc_blocks:
-                print(c)
-            print("OOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
+                print c
+            print "OOOOOOOOOOOOOOOOOOOOOOOOOOOOO"
     
         # Sorting data collection blocks
         # The top of crystal is the best one 
@@ -533,10 +528,10 @@ class NOU():
         dc_blocks.sort(cmp=compOscRange)
 
         if self.debug==True:
-            print("NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN")
+            print "NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN"
             for c in dc_blocks:
-                print(c)
-            print("NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN")
+                print c
+            print "NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN"
 
         self.isSorted=True
 
@@ -557,7 +552,7 @@ class NOU():
             self.logger.info("Minimum score = %s" % self.min_score_smallbeam)
             self.logger.info("Maximum score = %s" % self.max_score)
             ahm.setMinMax(self.min_score_smallbeam, self.max_score)
-        print("HEBI.getSortedCryList: AnaHeatmap.searchPixelBunch starts")
+        print "HEBI.getSortedCryList: AnaHeatmap.searchPixelBunch starts"
         crystal_array = ahm.searchPixelBunch(scan_prefix, self.naname_include)
         crystals = CrystalList.CrystalList(crystal_array)
         sorted_crystals = crystals.getSortedCrystalList()

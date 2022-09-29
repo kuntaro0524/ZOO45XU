@@ -68,10 +68,7 @@ class UserESA:
                     "single":   [9999, 9999, 0.3, dose_ds, 0, exp_raster, att_raster, hebi_att, 0],
                     "helical":  [9999, 9999, 0.3, dose_ds, 0, exp_raster, att_raster, hebi_att, 0],
                     "multi":    [9999, 9999, 0.3, dose_ds, 0, exp_raster, att_raster, hebi_att, 0],
-<<<<<<< HEAD
-=======
                     "mixed":    [9999, 9999, 0.3, dose_ds, 0, exp_raster, att_raster, hebi_att, 0],
->>>>>>> origin/puck_exchange
                 },
             },
             "normal":{
@@ -79,10 +76,7 @@ class UserESA:
                     "single":   [score_min, score_max, 0.1, dose_ds, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
                     "helical":  [score_min, 9999, 0.05, dose_ds, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
                     "multi":    [score_min, score_max, 0.1, dose_ds, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
-<<<<<<< HEAD
-=======
                     "mixed":    [score_min, 9999, 0.1, dose_ds, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
->>>>>>> origin/puck_exchange
                 },
             },
             "high_dose_scan":{
@@ -90,10 +84,7 @@ class UserESA:
                     "single":   [score_min, 9999, 0.05, dose_ds, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
                     "helical":  [score_min, 9999, 0.05, dose_ds, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
                     "multi":    [score_min, 9999, 0.05, dose_ds, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
-<<<<<<< HEAD
-=======
                     "mixed":    [score_min, 9999, 0.05, dose_ds, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
->>>>>>> origin/puck_exchange
                 },
             },
             "ultra_high_dose_scan":{
@@ -101,10 +92,7 @@ class UserESA:
                     "single":   [score_min, score_max, 0.2, dose_ds, raster_roi, exp_raster, 100, 100, cover_flag],
                     "helical":  [score_min, score_max, 0.2, dose_ds, raster_roi, exp_raster, 100, 100, cover_flag],
                     "multi":    [score_min, score_max, 0.2, dose_ds, raster_roi, exp_raster, 100, 100, cover_flag],
-<<<<<<< HEAD
-=======
                     "mixed":    [score_min, score_max, 0.2, dose_ds, raster_roi, exp_raster, 100, 100, cover_flag],
->>>>>>> origin/puck_exchange
                 },
             },
             "phasing":{
@@ -112,10 +100,7 @@ class UserESA:
                     "single":   [score_min, score_max, 0.1, 5, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
                     "helical":  [score_min, 9999, 0.05, 5, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
                     "multi":    [score_min, score_max, 0.1, 5, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
-<<<<<<< HEAD
-=======
                     "mixed":    [score_min, score_max, 0.1, 5, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
->>>>>>> origin/puck_exchange
                 },
             },
             "rapid":{
@@ -123,10 +108,7 @@ class UserESA:
                     "single":   [score_min, score_max, raster_dose, dose_ds, raster_roi, exp_raster, 100, 100, cover_flag],
                     "helical":  [score_min, score_max, raster_dose, dose_ds, raster_roi, exp_raster, 100, 100, cover_flag],
                     "multi":    [score_min, score_max, raster_dose, dose_ds, raster_roi, exp_raster, 100, 100, cover_flag],
-<<<<<<< HEAD
-=======
                     "mixed":    [score_min, score_max, raster_dose, dose_ds, raster_roi, exp_raster, 100, 100, cover_flag],
->>>>>>> origin/puck_exchange
                 },
             },
         }
@@ -195,12 +177,7 @@ class UserESA:
         if self.basename[1].count("xls"):
             book = xlrd.open_workbook(self.fname)
             for sname in book.sheet_names():
-<<<<<<< HEAD
-                if sname.count("Sheet"): # by Y.Nakamura @2021/03/29
-             #  if sname.count("ZOOPREP_YYMMDD_NAME_BLNAME"):
-=======
                 if sname.count("Sheet") or sname.count("ZOOPREP_"):
->>>>>>> origin/puck_exchange
                     sheet = book.sheet_by_name(sname)
                     xkey = None
                     for row in range(sheet.nrows):
@@ -321,10 +298,6 @@ class UserESA:
             puckid              = cols[0].replace("-", "")
             pinid               = cols[1]
             mode                = cols[4]
-<<<<<<< HEAD
-            print(cols[6])
-=======
->>>>>>> origin/puck_exchange
             wavelength          = float(cols[6])
             loop_size           = float(cols[7])
             resolution_limit    = float(cols[8]) if float(cols[8]) <= 10.0 else 1.5
@@ -337,10 +310,6 @@ class UserESA:
             osc_width           = float(cols[13])
             type_crystal        = "soluble"
             anomalous_flag      = cols[5]
-<<<<<<< HEAD
-            print(cols[14].lower())
-=======
->>>>>>> origin/puck_exchange
             ln2_flag            = 0 if cols[14].lower().count("no") else 1
             pin_flag            = cols[15]
             zoom_flag           = 0 if cols[16].lower().count("no") else 1

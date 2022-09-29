@@ -16,26 +16,23 @@ if __name__ == "__main__":
     dev.init()
     dev.prepCentering()
 
-    bright=[1500,2500,5000,10000,20000,30000,40000,50000]
-    contrast=[5000, 9000,18000,27000,36000,45000,54000]
+    #bright=[1500,2500,5000,10000,20000,30000,40000,50000]
+    #contrast=[5000, 9000,18000,27000,36000,45000,54000]
     #bright=[500,1000,1500,2500,5000,10000,20000,30000,40000,50000]
     #contrast=[5000, 9000,18000,27000,36000,45000,54000]
-    #bright=[2500]
-    #contrast=[30000,32000,34000,36000,38000,40000]
-
-    #bright=[3500]
-    #contrast=[10000,15000,20000,25000,30000,35000,40000,45000,50000]
+    bright=[2500]
+    contrast=[30000,32000,34000,36000,38000,40000]
 
     cap = Capture.Capture()
     cap.prep()
-    cappath = "/isilon/BL45XU/BLsoft/PPPP/10.Zoo/TestImages4/"
+    cappath = "/isilon/BL45XU/BLsoft/PPPP/10.Zoo/TestImages2/"
 
     # prefix should be 'back' or 'loop'
     prefix = "back"
 
     for br in bright:
         for cn in contrast:
-            filename="%s/%s_210326-%d-%d.ppm"%(cappath,prefix,br,cn)
+            filename="%s/%s_180517-%d-%d.ppm"%(cappath,prefix,br,cn)
             print "Captureing..",filename
             cap.setBright(br)
             cap.setContrast(cn)

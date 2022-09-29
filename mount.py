@@ -1,22 +1,23 @@
-import Zoo
-import MXserver
-from MyException import *
-import os
-import sys
-import glob
+import os,sys,glob
 import time
 import numpy as np
 import socket
-sys.path.append("/isilon/BL32XU/BLsoft/PPPP/10.Zoo/Libs/")
+import Zoo
+sys.path.append("/isilon/BL45XU/BLsoft/PPPP/10.Zoo/Libs/")
+from MyException import *
 
 if __name__ == "__main__":
-    zoo = Zoo.Zoo()
+    zoo=Zoo.Zoo()
     zoo.connect()
     zoo.getSampleInformation()
-
-    trayid= sys.argv[1]
-    pinid= sys.argv[2]
-    zoo.mountSample(trayid, pinid)
-    zoo.waitTillReady()
-
+    time.sleep(2.0)
+    #zoo.autoCentering()
+    #zoo.stop()
+    puckid = sys.argv[1]
+    pinid = sys.argv[2]
+    try:
+        zoo.mountSample(puckid, pinid)
+        zoo.waitTillReady()
+    except MyException, ttt:
+        print "Failed", ttt.args[0]
     zoo.disconnect()

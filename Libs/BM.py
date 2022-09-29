@@ -52,10 +52,6 @@ if __name__ == "__main__":
 
     moni = BM(s)
     print moni.getPos()
-<<<<<<< HEAD
-    moni.on()
-=======
->>>>>>> origin/puck_exchange
     moni.off()
 
     s.close()

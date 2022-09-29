@@ -42,21 +42,12 @@ class PuckExchanger():
 
         # Check if scheduled pucks are in SPACE dewar now.
         for scheduled_puck in scheduled_pucks:
-<<<<<<< HEAD
-            print("SCHE=",scheduled_puck)
-            non_touch_flag=False
-            for puck_in_space in pucks_in_space:
-                print("PINSPA=",puck_in_space)
-                if puck_in_space.rfind("Not-Mount")!=-1:
-                    self.logger.info("%s is not mounted" % puck_in_space)
-=======
             print("checking puck ID =",scheduled_puck)
             non_touch_flag=False
             for puck_in_space in pucks_in_space:
                 print("Puck in SPACE=",puck_in_space)
                 if puck_in_space.rfind("Not-Mount")!=-1:
                     self.logger.info("This is skipped.")
->>>>>>> origin/puck_exchange
                     continue
                 elif puck_in_space==scheduled_puck:
                     self.logger.info("%s is already in SPACE dewar." % puck_in_space)
@@ -73,21 +64,6 @@ class PuckExchanger():
         if len(to_be_mounted) != 0:
             for puck_in_space in pucks_in_space:
                 if puck_in_space.rfind("Not-Mount")!=-1:
-<<<<<<< HEAD
-                    self.logger.info("%s: skipping" % puck_in_space)
-                    continue
-                # Non touch pucks
-                for non_touch_puck in non_touch_pucks:
-                    if puck_in_space==non_touch_puck:
-                        self.logger.info("This puck is 'non-touch' pucks.")
-                        continue
-                for puck_to_be_mounted in to_be_mounted:
-                    if puck_to_be_mounted == puck_in_space:
-                        # self.logger.info("This puck will come from PE from now: %s" % puck_to_be_mounted)
-                        continue
-                self.logger.info("%s should be removed from SPACE dewar" % puck_in_space)
-                to_be_unmounted.append(puck_in_space)
-=======
                     self.logger.info("skipping this position")
                     continue
                 # Non touch pucks
@@ -109,7 +85,6 @@ class PuckExchanger():
                 if isNonTouch == False and isToBeMounted == False:
                     self.logger.info("%s should be removed from SPACE dewar" % puck_in_space)
                     to_be_unmounted.append(puck_in_space)
->>>>>>> origin/puck_exchange
 
         # Check the number of pucks to be mounted from now.
         n_pucks_to_be_mount=len(to_be_mounted)
@@ -200,12 +175,8 @@ class PuckExchanger():
 
 if __name__ == "__main__":
     sys.path.append("/isilon/BL45XU/BLsoft/PPPP/10.Zoo/")
-<<<<<<< HEAD
-    logname = "/isilon/users/admin45/admin45/2020B/210215_ZOOPEtest/zoo.log"
-=======
     #logname = "/isilon/users/admin45/admin45/2020B/210215_ZOOPEtest/zoo.log"
     logname = "/isilon/users/admin45/admin45/Staff/220301-puckexchange/zoo.log"
->>>>>>> origin/puck_exchange
     print "changing mode of %s" % logname
     logging.config.fileConfig('/isilon/BL45XU/BLsoft/PPPP/10.Zoo/Libs/logging.conf', defaults={'logfile_name': logname})
 
@@ -214,13 +185,7 @@ if __name__ == "__main__":
     zoo.connect()
 
     pe=PuckExchanger(zoo)
-<<<<<<< HEAD
-    mount_list, unmount_list=pe.checkCurrentPucks(sys.argv[1])
-    print("  mountlist=", mount_list)
-    print("unmountlist=", unmount_list)
-=======
     #mount_list, unmount_list=pe.checkCurrentPucks(sys.argv[1])
     #print("  mountlist=", mount_list)
     #print("unmountlist=", unmount_list)
     pe.unmountAllpucksFromSPACE()
->>>>>>> origin/puck_exchange

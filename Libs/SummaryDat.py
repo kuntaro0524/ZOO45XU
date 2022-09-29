@@ -6,11 +6,7 @@ import datetime
 import CrystalSpot
 
 class SummaryDat:
-<<<<<<< HEAD
-    def __init__(self, summary_dat_path, nv, nh):
-=======
     def __init__(self,summary_dat_path,cxyz,phi,nv,nh):
->>>>>>> origin/puck_exchange
         self.path=summary_dat_path
         self.isRead=False
         self.isKind=False
@@ -18,11 +14,8 @@ class SummaryDat:
         self.isScoreAbove=False
         self.summary_file="%s/summary.dat"%self.path
         self.DEBUG=False
-<<<<<<< HEAD
-=======
         self.cen_xyz=cxyz # Goniometer coordinate of this scan
         self.phi=phi
->>>>>>> origin/puck_exchange
 
         # DEBUG option
         self.debug=False
@@ -37,11 +30,6 @@ class SummaryDat:
         self.nv=nv
         self.nh=nh
 
-<<<<<<< HEAD
-        self.timeout = 1800.0
-
-=======
->>>>>>> origin/puck_exchange
     def setSummaryFile(self,filename):
         self.summary_file="%s/%s"%(self.path,filename)
 

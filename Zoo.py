@@ -573,13 +573,17 @@ class Zoo:
         self.bssr.sendall(com)
         recstr = self.bssr.recv(8000)
         print(recstr)
+        
 
 if __name__ == "__main__":
     zoo=Zoo()
     zoo.connect()
-    print zoo.getSampleInformation()
+    print(zoo.getSampleInformation())
+    zoo.skipSample()
     #zoo.exposeLN2()
-    zoo.runScriptOnBSS("BLTune")
+    #zoo.pe_query()
+    #zoo.pe_get_puck("a01")
+    #zoo.runScriptOnBSS("BLTune")
     #while(1):
     #zoo.skipSample()
     #zoo.dismountCurrPin()

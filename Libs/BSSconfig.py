@@ -131,11 +131,7 @@ class BSSconfig:
 
 if __name__ == "__main__":
     bssconf = BSSconfig()
-<<<<<<< HEAD
-    bssconf.getThinnestAtt()
-=======
     print(bssconf.getThinnestAtt())
->>>>>>> origin/puck_exchange
 
     """
     try:

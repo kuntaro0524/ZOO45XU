@@ -6,20 +6,10 @@ import datetime
 import DiffscanLog
 import SummaryDat
 import Crystal
-<<<<<<< HEAD
-import cv2
-import copy
-import logging
-import LogString
-
-class AnaHeatmap:
-    def __init__(self, scan_path):
-=======
 
 
 class AnaHeatmap:
     def __init__(self, scan_path, cxyz, phi):
->>>>>>> origin/puck_exchange
         self.scan_path = scan_path
         self.isRead = False
         self.isKind = False
@@ -27,23 +17,12 @@ class AnaHeatmap:
         self.isScoreAbove = False
         self.diffscan_path = "%s/" % self.scan_path
         self.summarydat_path = "%s/_spotfinder/" % self.scan_path
-<<<<<<< HEAD
-
-        # AnaHeatmap log file
-        FORMAT = '%(asctime)-15s %(module)s %(levelname)-8s %(lineno)s %(funcName)s %(message)s'
-        # logging.basicConfig(filename="./ana_heatmap.log", level=logging.INFO, format=FORMAT)
-        self.logger = logging.getLogger('AllAnalysis').getChild('AnaHeatmap')
-
-        # DEBUG option
-        self.debug = True
-=======
         self.DEBUG = False
         self.cen_xyz = cxyz  # Goniometer coordinate of this scan
         self.phi = phi
 
         # DEBUG option
         self.debug = False
->>>>>>> origin/puck_exchange
 
         # Threshold for min/max score
         # Crystals with core ranging self.min_score to self.max_score
@@ -55,11 +34,7 @@ class AnaHeatmap:
         self.isPrep = False
         self.crysize_mm = 0.015
 
-<<<<<<< HEAD
-        self.timeout_for_summarydat = 600.0  # [sec]
-=======
         self.timeout_for_summarydat = 600.0 #[sec]
->>>>>>> origin/puck_exchange
 
     def getDiffscanPath(self):
         return self.diffscan_path
@@ -87,11 +62,7 @@ class AnaHeatmap:
 
         # From summary.dat
         # score heat map will be extracted
-<<<<<<< HEAD
-        sumdat = SummaryDat.SummaryDat(self.summarydat_path, self.nv, self.nh)
-=======
         sumdat = SummaryDat.SummaryDat(self.summarydat_path, self.cen_xyz, self.phi, self.nv, self.nh)
->>>>>>> origin/puck_exchange
         sumdat.readSummary(prefix, nimages_all, 1.00, timeout=self.timeout_for_summarydat)
         # Score is arrayed to numpy.ndarray[N_Vertical,N_Horizontal]
         # 'SummaryDat' class sorts lines along with the image number
@@ -112,99 +83,6 @@ class AnaHeatmap:
 
         return self.heatmap
 
-<<<<<<< HEAD
-    def makeBinMap(self, prefix, outimage):
-        # Preparation of self.heatmap
-        if self.isPrep == False:
-            self.prep(prefix)
-            print "Heatmap shape=", self.heatmap.shape
-
-        bin_boxes = numpy.arange(self.nv * self.nh).reshape(self.nv, self.nh)
-
-        # Printing 4 corners
-        start_h = 0
-        end_h = self.nh
-        start_v = 0
-        end_v = self.nv
-
-        print "Vstart, Hstart", self.heatmap[start_v, start_h]
-        print "Vend, Hstart", self.heatmap[end_v-1, start_h]
-        print "Vstart, Hend", self.heatmap[start_v, end_h-1]
-        print "Vend, Hend", self.heatmap[end_v-1, end_h-1]
-
-        # Making a binarized heat map of crystals
-        for v in range(0, self.nv):
-            for h in range(0, self.nh):
-                scanindex, imgnum, x, y, z, score = self.heatmap[v, h]
-                self.logger.debug("loaded pixel information=%8.3f %8.3f %8.3f %8.3f %8.3f"% (x,y,z,v,h))
-                if score >= self.min_score:
-                    score = 200
-                else:
-                    score = 0
-                bin_boxes[v, h] = score
-                # print "BOX=",v,h,score
-
-        # Original bin image
-        outimg_name = os.path.join(self.scan_path, "bin.png")
-        cv2.imwrite(outimg_name, bin_boxes)
-
-        # 1um / 1pix calculation
-        bin_image = cv2.imread(outimg_name)
-        self.logger.info("Vertical step=%8.5f mm Horizontal step=%8.5f mm" % (self.v_step, self.h_step))
-        v_pix_ratio = self.v_step * 1000.0  #[pix/um]
-        h_pix_ratio = self.h_step * 1000.0  #[pix/um]
-
-        # Number of pixels of a new map
-        v_new_pix = int(float(self.nv) * float(v_pix_ratio))
-        h_new_pix = int(float(self.nh) * float(h_pix_ratio))
-
-        self.logger.info("New map: Vert=%5d pix (%5d times more)" % (v_new_pix, int(v_pix_ratio)))
-        self.logger.info("New map: Hori=%5d pix (%5d times more)" % (h_new_pix, int(h_pix_ratio)))
-
-        # Enlarged map is generated.
-        kakudai_img = cv2.resize(bin_image, (h_new_pix, v_new_pix))
-
-        # original vector
-        junk0, junk1, x0, y0, z0, score = self.heatmap[0, 0, :]
-        vec0 = numpy.array((x0, y0, z0))
-
-        # vertical 'unit' vector
-        junk0, junk1, xv, yv, zv, score = self.heatmap[1, 0, :]
-        v_vec = numpy.array((xv, yv, zv)) - vec0
-
-        # horizontal 'unit' vector
-        junk0, junk1, xh, yh, zh, score = self.heatmap[0, 1, :]
-        h_vec = numpy.array((xh, yh, zh)) - vec0
-
-        lgs = LogString.LogString()
-        self.logger.info("VEC0=%s" % lgs.floatArray2str(vec0, "vector0=", isReturn=False))
-        self.logger.info(lgs.floatArray2str(v_vec, "vvec=", isReturn=False))
-        self.logger.info(lgs.floatArray2str(h_vec, "hvec=", isReturn=False))
-
-        # Calculate the origin of new map
-        # horizontal direction
-        hori_o_dash = vec0 - (h_pix_ratio-1)/(2.0 * h_pix_ratio) * h_vec
-        vert_o_dash = vec0 - (v_pix_ratio-1)/(2.0 * v_pix_ratio) * v_vec
-        self.logger.debug(lgs.floatArray2str(hori_o_dash, "hori_o_dash=", isReturn=False))
-        self.logger.debug(lgs.floatArray2str(vert_o_dash, "vert_o_dash=", isReturn=False))
-        origin_new = numpy.array((vert_o_dash[0], hori_o_dash[1], vert_o_dash[2]))
-
-        # Horizontal grid vector
-        hvec_new = h_vec / float(h_pix_ratio)
-        vvec_new = v_vec / float(v_pix_ratio)
-
-        sayu_hanten_img = cv2.flip(kakudai_img, 1)
-        cv2.imwrite(outimage, sayu_hanten_img)
-
-        # New origin of the new map
-        self.logger.info(lgs.floatArray2str(origin_new, "orig_new=", isReturn=False))
-        self.logger.info(lgs.floatArray2str(hvec_new, "hori_new=", isReturn=False))
-        self.logger.info(lgs.floatArray2str(vvec_new, "vert_new=", isReturn=False))
-
-        return origin_new, vvec_new, hvec_new
-
-=======
->>>>>>> origin/puck_exchange
     def makeCheckMaps(self, prefix):
         # Preparation of self.heatmap
         if self.isPrep == False:
@@ -236,11 +114,7 @@ class AnaHeatmap:
         # Making numpy array for checking map and tree
         kdtree_map = numpy.array(kdtree_map_array)
         check_map = numpy.reshape(numpy.array(check_map_array), (self.nv, self.nh, 6))
-<<<<<<< HEAD
-        print "TreeMap and CheckMap shape=", kdtree_map.shape, check_map.shape
-=======
         print "TreeMap and CheckMap shep=", kdtree_map.shape, check_map.shape
->>>>>>> origin/puck_exchange
         kdtree = scipy.spatial.cKDTree(kdtree_map)
 
         return kdtree_map, check_map, kdtree
@@ -311,11 +185,7 @@ class AnaHeatmap:
                 crystal.addGrid(tx, ty, tz, h_index, v_index, score)
                 if self.debug:
                     ofile.write("%8.3f %8.3f %8.3f %5d %5d %5d\n" % (
-<<<<<<< HEAD
-                        tmpxyz[2], tmpxyz[3], tmpxyz[4], v_index, h_index, check_score))
-=======
                     tmpxyz[2], tmpxyz[3], tmpxyz[4], v_index, h_index, check_score))
->>>>>>> origin/puck_exchange
             # append Crystal class to the crystal_list
             crystal_array.append(crystal)
 
@@ -326,11 +196,8 @@ class AnaHeatmap:
 
         return crystal_array
 
-<<<<<<< HEAD
-=======
     # searchMulti
 
->>>>>>> origin/puck_exchange
     # searchPixelBunch
     # mode: multiple crystal (successive pixel maps) above score
     # Function implemented
@@ -429,62 +296,6 @@ class AnaHeatmap:
 
         return crystal_array
 
-<<<<<<< HEAD
-    def getGonioXYZat(self, nv, nh):
-        junk0, junk1, x0, y0, z0, score = self.heatmap[nv, nh, :]
-        return (x0,y0,z0)
-
-    def vectorTest(self):
-        # original vector
-        junk0, junk1, x0, y0, z0, score = self.heatmap[0, 0, :]
-        vec0 = numpy.array((x0, y0, z0))
-
-        # vertical 'unit' vector
-        junk0, junk1, xv, yv, zv, score = self.heatmap[1, 0, :]
-        v_vec = numpy.array((xv, yv, zv)) - vec0
-
-        # vertical 'unit' vector
-        junk0, junk1, xh, yh, zh, score = self.heatmap[0, 1, :]
-        h_vec = numpy.array((xh, yh, zh)) - vec0
-
-        final_1_1_vec = vec0 + 25*v_vec + 25*h_vec
-
-        print final_1_1_vec
-
-        junk0, junk1, x,y,z, score = self.heatmap[25,25,:]
-        vec_orig = numpy.array((x,y,z))
-
-        dist = numpy.linalg.norm((final_1_1_vec-vec_orig))
-        print "DIFF=", dist
-
-    def getNewMapVectors(self, npix_new_h, npix_new_v):
-        xyz_orig = self.getGonioXYZat(0,0)
-        xyz_vert_edge = self.getGonioXYZat(self.nv-1,0)
-        xyz_hori_edge = self.getGonioXYZat(0, self.nh-1)
-
-    def vectorTest2(self):
-        import EnlargedHeatmap
-        xyz_orig = self.getGonioXYZat(0,0)
-        xyz_vert_edge = self.getGonioXYZat(self.nv-1,0)
-        xyz_hori_edge = self.getGonioXYZat(0, self.nh-1)
-
-        print xyz_orig
-        print xyz_vert_edge
-        print xyz_hori_edge
-
-        em = EnlargedHeatmap.EnlargedHeatmap(xyz_orig, xyz_vert_edge, xyz_hori_edge)
-   
-        v_um = 150.0
-        h_um = 100.0
-
-        em.getGonioCode(v_um, h_um)
-        nv = int(v_um / 15.0)
-        nh = int(h_um / 10.0)
-
-        print "HEATMAP", self.heatmap[nv,nh,:]
-
-=======
->>>>>>> origin/puck_exchange
     def process_cycle(self, check_map, kdtree_map, kdtree, target_indices):
         cycle_list = []
         for new_core in target_indices:
@@ -670,8 +481,6 @@ class AnaHeatmap:
             target_corner = lu
         return target_corner
 
-<<<<<<< HEAD
-=======
     def findNearestGrid(self, thresh_score, prefix, target_corner, raster_path, kind="n_spots"):
         def calcDistance(code1, code2):
             x1, y1 = code1
@@ -710,7 +519,6 @@ class AnaHeatmap:
         print "findNearestGrid:", fx, fy, fz
         return fx, fy, fz
 
->>>>>>> origin/puck_exchange
     def make2Dmap(self):
         # step x
         self.step_x = self.x[0] - self.x[1]
@@ -757,10 +565,6 @@ class AnaHeatmap:
                     rlp, k=300, p=1, distance_upper_bound=0.011)
             # Bunch of processing
             print "RLP=", rlp
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/puck_exchange
             print "DIST=", dist
             print "INDX=", idx
             for (d, i) in zip(dist, idx):
@@ -795,48 +599,6 @@ class AnaHeatmap:
 
 
 if __name__ == "__main__":
-<<<<<<< HEAD
-    phi = 0.0
-    prefix = "2d"
-    # scan_path=sys.argv[1]
-    # scan_path = "/Users/kuntaro0524/Dropbox/PPPP/Sandbox/14.HITO/01.SHIKA2map"
-    # scan_path = "/Users/kuntaro0524/Dropbox/PPPP/Sandbox/14.HITO/02.MergedFunction/Data/"
-    scan_path = sys.argv[1]
-    ahm = AnaHeatmap(scan_path, phi)
-
-    min_score = int(sys.argv[2])
-    max_score = int(sys.argv[3])
-    dist_thresh = float(sys.argv[4])
-
-    # Multi crystal 
-    # cry_size=float(sys.argv[2])
-    # ahm.setMinMax(min_score,max_score)
-    # ahm.searchMulti(prefix,dist_thresh)
-    # Multi crystal 
-
-    # Helical crystal
-    # cry_size=float(sys.argv[2])
-    # ahm.setMinMax(min_score,max_score)
-    ahm.setMinMax(min_score, max_score)
-    ahm.searchPixelBunch(prefix, True)
-
-    ahm.vectorTest2()
-    ahm.makeBinMap(prefix, "summary2binMap.png")
-    # ahm.polygonSearch("summary2binMap.png", prefix="kakudai")
-
-    """
-    crystal_array = ahm.searchPixelBunch(prefix, True)
-    print "%5d crystals were found" % len(crystal_array)
-    for cry in crystal_array:
-        #print "CRYCRYCRYCRYCRYCRYCRYCRY"
-        cry.printAll()
-        #print cry.getTotalScore(), cry.getRoughEdges(), cry.getCryHsize()
-        #print "CRYCRYCRYCRYCRYCRYCRYCRY"
-
-    # ahm.ana1Dscan(prefix)
-    # def getBestCrystalCode(self,option="gravity"):
-    """
-=======
     cxyz = (0.7379, -11.5623, -0.0629)
     phi = 0.0
     scan_path = "/isilon/users/kimada/kimada/190714_BL45XU_ZOO/CPS0734-03/scan00/lv00/"
@@ -863,4 +625,3 @@ if __name__ == "__main__":
     # print cry.getTotalScore(),cry.getRoughEdges(),cry.getCryHsize()
     # ahm.ana1Dscan(prefix)
     # def getBestCrystalCode(self,option="gravity"):
->>>>>>> origin/puck_exchange
