@@ -6,7 +6,6 @@ import pandas as pd
 import logging
 import logging.config
 
-
 class PuckExchanger():
     def __init__(self, zoo):
         self.isCheck = False
@@ -22,6 +21,11 @@ class PuckExchanger():
         # logger
         self.logger = logging.getLogger('ZOO').getChild('PuckExchanger')
 
+    # このクラスの中ではCSVから読んだパック情報は重複を許さないリストとして良い
+    # このあと python の set で集合体を扱うのでこの時点でsetにしていても良い気がする
+    # ここで読む対象となっているCSVファイルはZOOPREPを書き下した最終のCSVのはずなので
+    # 重複するパックもないはずか
+    # いったんこのままリストとしてクラス変数としてもつことにする 2022/09/29
     def readPuckInfoFromCSV(self, csvfile):
         self.puck_df = pd.read_csv(csvfile)
         # self.logger(self.puck_df)
@@ -73,7 +77,7 @@ class PuckExchanger():
     # 触らずに放置するべきもののリスト　
     # に分類したので、アンマウントするリストを作成する
     def listUnmountPucks(self, pucks_in_space, pucks_to_be_mounted, non_touch_pucks):
-        # To be unmounted                                                                                                                        
+        # To be unmounted
         pucks_to_be_unmounted = []
         # mount するパックが0でなかった場合
         if len(pucks_to_be_mounted) != 0:
@@ -105,6 +109,21 @@ class PuckExchanger():
 
         return pucks_to_be_unmounted
 
+    def groupPucksForNext(self, pucks_in_schedule, pucks_in_space):
+        # python set　に変換
+        pucks_in_schedule_set = set(pucks_in_schedule)
+        pucks_in_space_set = set(pucks_in_space)
+
+        # 今回触らないパック
+        remain_pucks_set = pucks_in_space_set & pucks_in_schedule_set
+        # これからマウントしないといけないパック
+        mounting_pucks_set = pucks_in_schedule_set - remain_pucks_set
+        # これからアンマウントするパック
+        unmounting_pucks_set = pucks_in_space_set - remain_pucks_set
+
+        # listに戻してから返却する
+        return list(remain_pucks_set), list(mounting_pucks_set), list(unmounting_pucks_set)
+
     def checkCurrentPucks(self, csvfile):
         # Read puck IDs in the dewar.
         pucks_in_space = self.zoo.getSampleInformation()
@@ -113,22 +132,23 @@ class PuckExchanger():
         print("Pucks in SPACE=", pucks_in_space)
         print("Scheduled pucks=", scheduled_pucks)
 
-        non_touch_pucks, pucks_to_be_mounted = self.groupMountUnmountPucks(scheduled_pucks, pucks_in_space)
-        pucks_to_be_unmounted = self.listUnmountPucks(pucks_in_space, pucks_to_be_mounted, non_touch_pucks)
-        
+        #今回触らないやつ、マウントするやつ、アンマウントするやつの仕分け
+        remain_pucks, mounting_pucks, unmounting_pucks = self.groupPucksForNext(
+            scheduled_pucks, pucks_in_space)
+
         # Check the number of pucks to be mounted from now.
-        n_pucks_to_be_mount = len(pucks_to_be_mounted)
-        n_pucks_to_be_unmounted = len(pucks_to_be_unmounted)
-        n_non_touch_pucks = len(non_touch_pucks)
+        n_mounting = len(mounting_pucks)
+        n_unmounting = len(unmounting_pucks)
+        n_remain = len(remain_pucks)
 
         self.logger.info("%5d pucks will be   mounted from now" %
-                         n_pucks_to_be_mount)
+                         n_mounting)
         self.logger.info("%5d pucks will be unmounted from now" %
-                         n_pucks_to_be_unmounted)
+                         n_unmounting)
         self.logger.info("%5d pucks will be left as they are" %
-                         n_non_touch_pucks)
+                         n_remain)
 
-        return pucks_to_be_mounted, to_be_unmounted
+        return mounting_pucks, unmounting_pucks
 
     def checkCurrentPucksAndMount(self, csvfile):
         pucks_to_be_mounted, pucks_to_be_unmounted = self.checkCurrentPucks(
@@ -216,8 +236,12 @@ if __name__ == "__main__":
     logging.config.fileConfig(
         '/isilon/BL45XU/BLsoft/PPPP/10.Zoo/Libs/logging.conf', defaults={'logfile_name': logname})
 
-    zoo = Zoo.Zoo()
-    zoo.connect()
+    #zoo = Zoo.Zoo()
+    #zoo.connect()
+    zoo=1
 
     pe = PuckExchanger(zoo)
-    pe.unmountAllpucksFromSPACE()
+    # pe.unmountAllpucksFromSPACE()
+    pucks_in_schedule = ["A02","A05","A06","A07"]
+    pucks_in_space = ["A02"]
+    pe.groupPucksForNext(pucks_in_schedule, pucks_in_space)
