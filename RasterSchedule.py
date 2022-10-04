@@ -1,6 +1,8 @@
 import sys, os
 
-beamline = "BL45XU"
+sys.path.append("./Libs")
+import Env
+env = Env.Env()
 
 # This was coded for PILATUS 3 6M at BL45XU
 # modified for versatile code
@@ -41,11 +43,13 @@ class RasterSchedule:
         # BL32XU/BL41XU 1: 4M mode
         # BL45XU 1: 2M mode
         self.roi_index = 1
+        # Beamline
+        self.beamline = env.beamline
 
         # for PILATUS BL45XU
-        if beamline == "BL45XU":
+        if self.beamline == "BL45XU":
             self.img_suffix = "cbf"
-        if beamline == "BL41XU" or beamline == "BL32XU":
+        if self.beamline == "BL41XU" or self.beamline == "BL32XU":
             self.img_suffix = "h5"
 
         self.isSSROX = False
@@ -204,7 +208,7 @@ class RasterSchedule:
         schstr.append("Oscillation delay: 100.000000  # [msec]")
         schstr.append("Anomalous Nuclei: Mn  # Mn-K")
         schstr.append("XAFS Mode: 0  # 0:Final  1:Fine  2:Coarse  3:Manual")
-        if beamline == "BL41XU" or beamline == "BL32XU" or beamline == "BL45XU":
+        if self.beamline == "BL41XU" or self.beamline == "BL32XU" or self.beamline == "BL45XU":
             schstr.append("Attenuator transmission: %8.4f\n" % self.trans)
         else:
             schstr.append("Attenuator: %d  # None" % self.att_idx)
@@ -229,7 +233,7 @@ class RasterSchedule:
             schstr.append("Raster Scan Type: 2 # 0:vertical, 1:horizontal, 2: 2D")
 
         # Cover scan
-        if self.isCoverScan == True and beamline.upper() == "BL45XU":
+        if self.isCoverScan == True and self.beamline.upper() == "BL45XU":
             schstr.append("Raster Close Cover Flag: 1")
 
         schstr.append("Raster Vertical Points: %d" % self.v_points)

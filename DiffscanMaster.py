@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 import sys, math, numpy, os
 
-sys.path.append("/isilon/BL41XU/BLsoft/PPPP/10.Zoo/Libs/")
+sys.path.append("./Libs")
+import Env
+
+env = Env.Env()
+sys.path.append(env.beamline_zoo_path)
+
 import MyException
 import StopWatch
 import AnaHeatmap
@@ -9,8 +14,6 @@ import CrystalList
 import logging
 import logging.config
 import LoopCrystals
-
-beamline = "BL41XU"
 
 class NOU():
     def __init__(self, zoo, loop_measurement, face_angle, phosec):

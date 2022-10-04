@@ -6,10 +6,10 @@ import time
 import datetime
 import os
 import numpy
+import Env
 from socket import error as socket_error
 from MyException import *
 
-beamline = "BL41XU"
 # Copy from BL32XU ZOO 210326 K. Hirata
 
 class Capture:
@@ -19,6 +19,9 @@ class Capture:
         self.open_sig = False  # network connection to videoserv
         self.isPrep = False
         self.user = os.environ["USER"]
+
+        self.env = Env.Env()
+        self.beamline = self.env.beamline
 
         # Command for BL45XU
         # VIDEOSRV name for searching process via 'ps'
@@ -35,7 +38,7 @@ class Capture:
 
         self.isDark = False
 
-        if beamline == "BL45XU":
+        if self.beamline == "BL45XU":
             # BL45XU setting
             # These values are not good for a transparent cryo-protectant
             # self.bright_default = 27000 #self.contrast_default = 36000
@@ -50,7 +53,7 @@ class Capture:
             self.bright_default = 3800
             self.contrast_default = 9000
             self.gain_default = 3800 # Added 210326 Ubuntu
-        if beamline == "BL32XU":
+        if self.beamline == "BL32XU":
             # obsoleted parameters
             # self.bright_default = 4000
             self.contrast_default = 18000
@@ -61,7 +64,7 @@ class Capture:
             if self.isDark == True:
                 self.bright_default = 40000
                 self.contrast_default = 60000
-        if beamline == "BL41XU":
+        if self.beamline == "BL41XU":
             self.contrast_default = 18000
             self.bright_default = 14800 # "Exposure" at videoserve
             self.gain_default = 1000 #45000 YK@210302

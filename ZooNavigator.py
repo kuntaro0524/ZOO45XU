@@ -4,11 +4,10 @@ import traceback
 import logging
 import numpy as np
 
-
-beamline = "BL41XU"
-
-sys.path.append("/isilon/%s/BLsoft/PPPP/10.Zoo/Libs/" % beamline)
-sys.path.append("/isilon/%s/BLsoft/PPPP/10.Zoo/" % beamline)
+sys.path.append("./Libs")
+import Env
+env = Env.Env()
+sys.path.append(env.beamline_zoo_path)
 
 from MyException import *
 import Zoo
@@ -58,10 +57,11 @@ class ZooNavigator():
         self.recoverOption = False
 
         # Back img
-        self.backimg = "/isilon/%s/BLsoft/PPPP/10.Zoo/BackImages/back-1811221806.ppm" % beamline.upper()
+        self.beamline = env.beamline
+        self.backimg = "/isilon/%s/BLsoft/PPPP/10.Zoo/BackImages/back-1811221806.ppm" % self.beamline.upper()
 
         # Configure directory
-        self.config_dir = "/isilon/blconfig/%s/" % beamline.lower()
+        self.config_dir = "/isilon/blconfig/%s/" % self.beamline.lower()
         self.config_file = "%s/bss/bss.config" % self.config_dir
 
         # Attenuator index
@@ -72,7 +72,7 @@ class ZooNavigator():
 
         self.logger = logging.getLogger('ZOO').getChild("ZooNavigator")
 
-        self.zooprog = open("/isilon/%s/BLsoft/PPPP/10.Zoo/ZooLogs/zoo_progress.log" % beamline.upper(), "a")
+        self.zooprog = open("/isilon/%s/BLsoft/PPPP/10.Zoo/ZooLogs/zoo_progress.log" % self.beamline.upper(), "a")
         self.stopwatch = StopWatch.StopWatch()
 
         # Data processing file
@@ -243,7 +243,7 @@ class ZooNavigator():
             self.logger.info("dismounting sample for capturing background image failed.")
             sys.exit()
         # Background image for centering
-        backdir = "/isilon/%s/BLsoft/PPPP/10.Zoo/BackImages/" % beamline.upper()
+        backdir = "/isilon/%s/BLsoft/PPPP/10.Zoo/BackImages/" % self.beamline.upper()
         self.backimg = "%s/%s" % (backdir, datetime.datetime.now().strftime("back-%y%m%d%H%M.ppm"))
         while(True):
             try:
@@ -259,9 +259,9 @@ class ZooNavigator():
 
             timg = cv2.imread(self.backimg)
             mean_value = timg.mean()
-            if beamline.upper() == "BL32XU":
+            if self.beamline.upper() == "BL32XU":
                 mean_thresh = 230
-            elif beamline.upper() == "BL45XU" or beamline.upper() == "BL41XU":
+            elif self.beamline.upper() == "BL45XU" or self.beamline.upper() == "BL41XU":
                 mean_thresh = 250
             if mean_value < 100:
                 self.logger.info("Background image seems to be bad with lower mean value than 100!")
@@ -410,7 +410,7 @@ class ZooNavigator():
             energy_change_flag = self.changeEnergy(cond)
             # When the energy was changed in checkEnergy function
             if energy_change_flag == True:
-                if beamline.upper() == "BL45XU" or beamline.upper() == "BL41XU":
+                if self.beamline.upper() == "BL45XU" or self.beamline.upper() == "BL41XU":
                     self.logger.info("Wavelength will be changed.")
                     self.logger.info("Wavelength has been changed. You should wait for 15 minutes")
                     time.sleep(15 * 60)
@@ -435,8 +435,7 @@ class ZooNavigator():
             if current_beam_index != beamsize_index:
                 self.logger.info("Beamsize index = %5d" % beamsize_index)
                 self.zoo.setBeamsize(beamsize_index)
-                if beamline.upper() == "BL45XU" or beamline.upper() == "BL41XU":
-                #if beamline.upper() == "BL45XU":
+                if self.beamline.upper() == "BL45XU" or self.beamline.upper() == "BL41XU":
                     self.logger.info("Tuning a beam position starts....")
                     self.zoo.runScriptOnBSS("BLTune")
                     self.dev.zoom.zoomOut()
@@ -661,7 +660,7 @@ class ZooNavigator():
         capture_name = "before.ppm"
         self.lm.captureImage(capture_name)
 
-        if beamline.upper() == "BL45XU" or beamline.upper()=="BL41XU":
+        if self.beamline.upper() == "BL45XU" or self.beamline.upper()=="BL41XU":
             # LN2:ON -> ZoomCap:ON
             if cond['ln2_flag'] == 1:
                 self.dev.zoom.move(4448)

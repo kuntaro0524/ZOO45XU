@@ -1,6 +1,10 @@
 import sys, math, numpy, os
 
-sys.path.append("/isilon/BL45XU/BLsoft/PPPP/10.Zoo/Libs/")
+sys.path.append("./Libs")
+import Env
+env = Env.Env()
+sys.path.append(env.beamline_zoo_path)
+
 import datetime
 import LoopMeasurement
 import AttFactor
@@ -10,8 +14,6 @@ import AnaHeatmap
 import CrystalList
 import logging
 import logging.config
-
-beamline = "BL41XU"
 
 # version 2.0.0 2019/07/04
 # copied from BL45XU on 2022/04/12

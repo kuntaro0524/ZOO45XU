@@ -1,10 +1,11 @@
 import sys, os, math, socket, time
 import numpy as np
 import datetime
+sys.path.append("./Libs")
+import Env
+env = Env.Env()
+sys.path.append(env.beamline_zoo_path)
 
-beamline = "BL41XU"
-
-sys.path.append("/isilon/%s/BLsoft/PPPP/10.Zoo/Libs/"%beamline)
 from MyException import *
 import INOCC
 import RasterSchedule
@@ -28,6 +29,7 @@ import logging.config
 
 class LoopMeasurement:
     def __init__(self, ms, root_dir, prefix):
+        self.beamline = env.beamline
         self.ms = ms
         self.root_dir = root_dir
         self.prefix = prefix
@@ -38,7 +40,7 @@ class LoopMeasurement:
         self.max_framerate = 200.0  # [Hz]
         # Gonio center for the loop centering
         # for BL45XU
-        if beamline.lower() == "bl41xu":
+        if self.beamline.lower() == "bl41xu":
             self.x = -1.30
             self.y = -2.23
             self.z = -1.25
@@ -55,7 +57,7 @@ class LoopMeasurement:
         self.light = Light.Light(self.ms)
         self.colli = Colli.Colli(self.ms)
 
-        config_dir = "/isilon/blconfig/%s/" % beamline.lower()
+        config_dir = "/isilon/blconfig/%s/" % self.beamline.lower()
         self.beamsizeconf = BeamsizeConfig.BeamsizeConfig(config_dir)
         self.bss_config = "%s/bss/bss.config" % config_dir
 
@@ -318,7 +320,7 @@ class LoopMeasurement:
         rss.setExpTime(exp_time)
         rss.setPrefix(scan_id)
         # Attenuator raster is set by 'best_transmission' (0<= value<=1.0)
-        if beamline == "BL32XU" or beamline == "BL41XU" or beamline=="BL45XU":
+        if self.beamline == "BL32XU" or self.beamline == "BL41XU" or self.beamline=="BL45XU":
             rss.setTrans(best_transmission)
         else:
             # Attenuator index is calculated
@@ -417,7 +419,7 @@ class LoopMeasurement:
 
         # Attenuator index from 'att_fac' for BL32XU/BL45XU
         # Attenuator should be set in 'an index of attenuator defined in bss.config'
-        if beamline == "BL32XU" or beamline == "BL41XU" or beamline == "BL45XU":
+        if self.beamline == "BL32XU" or self.beamline == "BL41XU" or self.beamline == "BL45XU":
             # if you need to activate 'attenuator modification', put 'flag_mod_exptime' on at the top of this function
             if flag_mod_exptime:
                 # Check transmission with 'thinnest attenuator'
@@ -491,7 +493,7 @@ class LoopMeasurement:
         rss.setPrefix(scan_id)
         rss.setCL(dist_raster)
         # 2019/10/26 Detector cover scan for salt screening
-        if cond['cover_scan_flag'] == 1 and beamline.lower() == "bl45xu":
+        if cond['cover_scan_flag'] == 1 and self.beamline.lower() == "bl45xu":
             rss.setCoverScan()
         rss.setImgDire(raster_path)
         rss.setStartPhi(phi)

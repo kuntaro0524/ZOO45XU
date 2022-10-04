@@ -5,8 +5,7 @@ import copy
 from MyException import *
 import logging
 import logging.config
-
-beamline = "BL41XU"
+import Env
 
 class CryImageProc():
     def __init__(self, logdir = "./"):
@@ -20,19 +19,22 @@ class CryImageProc():
         self.ymax = 470
         self.roi_len_um = 200.0 #[um]
 
+        self.env = Env.Env()
+        self.beamline = self.env.beamline
+
         # Pixel resolution
-        print("Beamline is %s"%beamline)
-        if beamline == "BL32XU":
+        print("Beamline is %s"%self.beamline)
+        if self.beamline == "BL32XU":
             self.pix_size = 2.780 #[um]
             self.gonio_direction = "FROM_RIGHT"
             # threshold in binarization
             self.bin_thresh = 10
-        if beamline == "BL41XU":
+        if self.beamline == "BL41XU":
             self.pix_size = 4.748 #[um]
             self.gonio_direction = "FROM_RIGHT"
             # threshold in binarization
             self.bin_thresh = 30
-        if beamline == "BL45XU":
+        if self.beamline == "BL45XU":
             #self.pix_size = 3.2439 #[um]
             self.pix_size = 6.087 #[um] # 2021/03/26 Ubutu
             self.gonio_direction = "FROM_LEFT"

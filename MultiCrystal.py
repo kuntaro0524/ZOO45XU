@@ -1,10 +1,11 @@
 # from GonioVec import *
 import sys, os
 import logging
-
-sys.path.append("/isilon/BL45XU/BLsoft/PPPP/10.Zoo/Libs/")
 from AttFactor import *
-
+sys.path.append("./Libs")
+import Env
+env = Env.Env()
+sys.path.append(env.beamline_zoo_path)
 
 # 2014/05/28 K.Hirata
 # For multi-crystal data collection
@@ -14,7 +15,6 @@ from AttFactor import *
 # 2019/07/04 K.Hirata for BL32XU
 
 # Version 2.0.0. K.Hirata 2019/07/04
-beamline = "BL41XU"
 
 class MultiCrystal:
     def __init__(self):
@@ -44,9 +44,10 @@ class MultiCrystal:
         self.isSlow = False
         self.isReadBeamSize = False
         self.isShutterless = False
-        if beamline == "BL32XU" or "BL41XU":
+        self.beamline = env.beamline
+        if self.beamline == "BL32XU" or "BL41XU":
             self.data_suffix = "h5"
-        if beamline == "BL45XU":
+        if self.beamline == "BL45XU":
             self.data_suffix = "cbf"
 
         # Is this valid only for BL32XU? K.Hirata 190412
@@ -209,7 +210,7 @@ class MultiCrystal:
         ofile.write("Anomalous Nuclei: Mn  # Mn-K\n")
         ofile.write("XAFS Mode: 0  # 0:Final  1:Fine  2:Coarse  3:Manual\n")
         # 2020/10/30 Seamless transmission of BSS
-        if beamline == "BL32XU" or beamline=="BL41XU" or beamline=="BL45XU":
+        if self.beamline == "BL32XU" or self.beamline=="BL41XU" or self.beamline=="BL45XU":
             ofile.write("Attenuator transmission: %9.7f\n" % self.trans)
         else:
             ofile.write("Attenuator: %5d\n" % self.att_index)
