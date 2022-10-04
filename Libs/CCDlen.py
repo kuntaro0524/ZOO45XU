@@ -13,7 +13,7 @@ from BSSconfig import *
 class CCDlen:
     def __init__(self, server):
         self.s = server
-        self.ccdlen = Motor(self.s, "bl_45in_st2_detector_1_x", "pulse")
+        self.ccdlen = Motor(self.s, "bl_41in_st2_detector_1_x", "pulse")
 
         self.off_pos = 0  # pulse
         self.on_pos = -245000  # pulse

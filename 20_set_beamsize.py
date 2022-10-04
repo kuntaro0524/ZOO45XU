@@ -7,7 +7,7 @@ import BeamsizeConfig
 import Zoo
 
 if __name__ == "__main__":
-    config_dir = "/isilon/blconfig/bl45xu/"
+    config_dir = "/isilon/blconfig/bl41xu/"
     bsc = BeamsizeConfig.BeamsizeConfig(config_dir)
     tw, th, bs, ff = bsc.getBeamParamList()
  

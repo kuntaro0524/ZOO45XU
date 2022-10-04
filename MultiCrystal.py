@@ -14,7 +14,7 @@ from AttFactor import *
 # 2019/07/04 K.Hirata for BL32XU
 
 # Version 2.0.0. K.Hirata 2019/07/04
-beamline = "BL45XU"
+beamline = "BL41XU"
 
 class MultiCrystal:
     def __init__(self):
@@ -386,7 +386,7 @@ class MultiCrystal:
 
         return schstr
 
-    def makeGUI(self, outdir, wavelength, gonio_list, distance, startphi, endphi, osc_width, att_thick, beamsize_index=0):
+    def makeGUI(self, outdir, wavelength, gonio_list, distance, startphi, endphi, osc_width, trans_percent, beamsize_index=0):
         phirange = endphi - startphi
         nframe = int(phirange / osc_width)
         # print nframe
@@ -395,15 +395,14 @@ class MultiCrystal:
             self.beamsize_idx = beamsize_index
         # exptime T[sec]: meaning
         # Full flux x T[sec] exposure = 20 MGy
-        # Attenuator thickness
-        attfac = AttFactor()
-        att_idx = attfac.getAttIndexConfig(att_thick)
 
         self.wavelength = wavelength
         self.setCameraLength(distance)
         self.setScanCondition(startphi, endphi, osc_width)
         self.setDir(outdir)
-        self.setAttIdx(att_idx)
+
+        # transmission with [%]
+        self.setTrans(trans_percent)
 
         # Schedule file
         home_dir = os.environ['HOME']

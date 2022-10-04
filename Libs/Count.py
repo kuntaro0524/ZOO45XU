@@ -16,11 +16,14 @@ class Count:
         self.ch2 = ch2 + 1
         self.is_count = 0
 
+        self.beamline="BL41XU"
+        self.blstr = "41in"
+
     def setCountSec(self, cnttime):
         strtime = str(cnttime) + "sec"
         # print strtime
-        com1 = "put/bl_45in_st2_counter_1/clear"
-        com2 = "put/bl_45in_st2_counter_1/" + strtime
+        com1 = "put/bl_%s_st2_counter_1/clear" % self.blstr
+        com2 = "put/bl_%s_st2_counter_1/" % self.blstr + strtime
 
         # counter clear
         self.s.sendall(com1)
@@ -35,8 +38,8 @@ class Count:
     def setCountMsec(self, cnttime):
         strtime = str(cnttime) + "msec"
         # print strtime
-        com1 = "put/bl_45in_st2_counter_1/clear"
-        com2 = "put/bl_45in_st2_counter_1/" + strtime
+        com1 = "put/bl_%s_st2_counter_1/clear" % self.blstr
+        com2 = "put/bl_%s_st2_counter_1/" % self.blstr + strtime
 
         # counter clear
         self.s.sendall(com1)
@@ -51,7 +54,7 @@ class Count:
         return True
 
     def getStoredCount(self, time_msec):
-        com3 = "get/bl_45in_st2_counter_1/query"
+        com3 = "get/bl_%s_st2_counter_1/query" % self.blstr
         time.sleep(time_msec)  # wait
         self.s.sendall(com3)
         recbuf = self.s.recv(8000)
@@ -65,9 +68,9 @@ class Count:
 
     def __storeCountMsec(self, cnttime):
         strtime = str(cnttime) + "msec"
-        com1 = "put/bl_45in_st2_counter_1/clear"
-        com2 = "put/bl_45in_st2_counter_1/" + strtime
-        com3 = "get/bl_45in_st2_counter_1/query"
+        com1 = "put/bl_%s_st2_counter_1/clear" % self.blstr
+        com2 = "put/bl_%s_st2_counter_1/" % self.blstr + strtime
+        com3 = "get/bl_%s_st2_counter_1/query" % self.blstr
 
         # counter clear
         self.s.sendall(com1)
@@ -91,9 +94,9 @@ class Count:
 
     def __storeCount(self, cnttime):
         strtime = str(cnttime) + "sec"
-        com1 = "put/bl_45in_st2_counter_1/clear"
-        com2 = "put/bl_45in_st2_counter_1/" + strtime
-        com3 = "get/bl_45in_st2_counter_1/query"
+        com1 = "put/bl_%s_st2_counter_1/clear" % self.blstr
+        com2 = "put/bl_%s_st2_counter_1/" % self.blstr + strtime
+        com3 = "get/bl_%s_st2_counter_1/query" % self.blstr
 
         # counter clear
         self.s.sendall(com1)
@@ -183,12 +186,11 @@ class Count:
         print "calcPIN"
         # flux=(3.6/energy)*(1/(1-exp(absorption)*2.33*0.03)*(currennt/1.602E-19)
 
-
 if __name__ == "__main__":
-    host = '172.24.242.59'
+    host = '172.24.242.54'
     port = 10101
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))
 
     counter = Count(s, 0, 1)
-    print counter.getCount(1.0)
+    print (counter.getCount(1.0))

@@ -18,7 +18,7 @@ if __name__ == "__main__":
         beamsize_index = zoo.getBeamsize()
         print datetime.datetime.now()
         print "Beamsize index from BSS=", beamsize_index
-        config_dir = "/isilon/blconfig/bl45xu/"
+        config_dir = "/isilon/blconfig/bl41xu/"
         bsc = BeamsizeConfig.BeamsizeConfig(config_dir)
         # bsc.readConfig()
         print bsc.getBeamsizeAtIndex(beamsize_index)

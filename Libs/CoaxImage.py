@@ -1,6 +1,6 @@
 import sys,os,math,numpy,socket,time,cv2
 import re
-sys.path.append("/isilon/BL45XU/BLsoft/PPPP/10.Zoo/Libs/")
+sys.path.append("/isilon/BL41XU/BLsoft/PPPP/10.Zoo/Libs/")
 import MyException
 from Capture import *
 import Gonio
@@ -41,6 +41,7 @@ class CoaxImage:
         self.thread = None
         self.ms = ms
         self.camera_inf = read_camera_inf(os.path.join(os.environ["BLCONFIG"], "video", "camera.inf"))
+        print(self.camera_inf)
         self.bss_config = read_bss_config(os.path.join(os.environ["BLCONFIG"], "bss", "bss.config"))
         self.coax_pulse2zoom = dict(zip(self.bss_config["zoom_pulses"], self.camera_inf["zoom_opts"]))
         self.coax_zoom2pulse = dict(zip(self.camera_inf["zoom_opts"], self.bss_config["zoom_pulses"]))
@@ -59,7 +60,7 @@ class CoaxImage:
         self.gonio_direction = "FROM_LEFT"
 
         # Videosrv capture size
-        self.image_size = 881295 # 210331 Ubuntu New Videosrv
+        self.image_size = 881295 # 210331 Ubuntu New Videosrv (same in BL45XU/BL41XU)
         # self.image_size = 881323 # 210326 Ubuntu
 
     def closeCapture(self):
@@ -145,7 +146,8 @@ class CoaxImage:
         # 2019/05/16 updated by K. Hirata
         #return 3.2439 #[um/pixel] at x3.0 magnification
         # 2021/04/13 updated by K. Hirata (ubuntu video)
-        return 6.087
+        # 2022/04/11 updated by K. Hirata (ubuntu video) -> BL41XU : 
+        return 4.748
 
         """ ORIGINAL CODE
         if zoom == 3.0:
@@ -163,7 +165,7 @@ class CoaxImage:
     # get_coax_center()
 
     def get_zoom(self):
-        self.ms.sendall("get/bl_45in_st2_coax_1_zoom/query")
+        self.ms.sendall("get/bl_41in_st2_coax_1_zoom/query")
         recbuf = self.ms.recv(8000)
         print "debug::", recbuf
 
@@ -238,7 +240,6 @@ class CoaxImage:
             dx, dy = (sx-cen_x), -(sy-cen_y)
             print "DX,DY=",dx,dy
         """
-
 
         ret = []
         for unit in units:

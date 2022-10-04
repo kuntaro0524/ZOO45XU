@@ -52,7 +52,6 @@ class ConfigFile:
             if line.find("def") != -1:
                 # header string
                 header = line[:-1].replace("def ", "").replace(":", "")
-                # print "HEADER:"+header
                 j = i + 1
                 tmpblock = {}
                 while (1):

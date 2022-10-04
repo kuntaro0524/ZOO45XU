@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 import socket
 import time
@@ -7,77 +8,41 @@ from numpy import *
 # My library
 from Motor import *
 
-
 class Att:
     def __init__(self, server):
         self.s = server
-        self.att = Motor(self.s, "bl_45in_st2_att_1_rx", "pulse")
+        self.att1 = Motor(self.s, "bl_41in_st2_att_1_rx", "pulse")
+        self.att2 = Motor(self.s, "bl_41in_st2_att_2_rx", "pulse")
+
         self.bssconfig = "/blconfig/bss/bss.config"
         self.isInit = False
-        self.pulse_noatt = 3500
-        self.isDebug = False
+        self.att1_noatt_pulse = -20
+        self.att2_noatt_pulse = 0
 
-    # 140611 read configure file from BSS.CONFIG
+    def setNoAtt(self):
+        self.att1.move(self.att1_noatt_pulse)
+        self.att2.move(self.att2_noatt_pulse)
+        pos1 = int(self.att1.getPosition()[0])
+        pos2 = int(self.att2.getPosition()[0])
+        print "Pos1/Pos2 =", pos1, pos2
+
+    # 220323 'init' function does not read 'bss.config' because 
+    # アッテネータを変更するのはBSSでやれば良いので
+    # フラックスを測定するときだけ 0 アッテネータを実現できれば良い
+    # というわけでこの関数の中身を変えてしまう
     # Get Thick - Index - Pulse
     def init(self):
         confile = open(self.bssconfig, "r")
         lines = confile.readlines()
         confile.close()
-
-        self.att_idx = []
-        self.att_thick = []
-        self.att_pulse = []
-
-        # For no attenuator
-        self.att_idx.append(0)
-        self.att_thick.append(0.0)
-        self.att_pulse.append(self.pulse_noatt)
-
-        for line in lines:
-            if line.find("Attenuator_Menu_Label") != -1:
-                line = line.replace("[", "").replace("]", "").replace("{", "").replace("}", "")
-                cols = line.split()
-                ncols = len(cols)
-                if ncols == 4:
-                    if cols[2].find("um") != -1:
-                        tmp_thick = float(cols[2].replace("um", ""))
-                        tmp_attidx = int(cols[3])
-                        # storage
-                        self.att_idx.append(tmp_attidx)
-                        self.att_thick.append(tmp_thick)
-
-        for line in lines:
-            if line.find("Attenuator1_") != -1:
-                cols = line.split()
-                ncols = len(cols)
-
-                # Attenuator thickness = 0.0
-                if line.rfind("_0") != -1:
-                    continue
-
-                elif (ncols == 4):
-                    tmp_pulse = int(cols[3])
-                    self.att_pulse.append(tmp_pulse)
-
-        self.att_idx = array(self.att_idx)
-        self.att_thick = array(self.att_thick)
-        self.att_pulse = array(self.att_pulse)
-
-        if self.isDebug:
-            for i, thick, pulse in zip(self.att_idx, self.att_thick, self.att_pulse):
-                print i, thick, pulse
-        # flag on
         self.isInit = True
 
+    # For BL41XU set 0 mm is only activated.
     def setAttThick(self, thick):
-        if self.isInit == False:
-            self.init()
-        for t_conf, p_conf in zip(self.att_thick, self.att_pulse):
-            if thick == t_conf:
-                print "Set thickness to %5d [um]" % thick
-                self.move(p_conf)
-                return True
-        print "No attenuator in the list"
+        if thick == 0.0:
+            self.setNoAtt()
+        else:
+            print("Please do not modify attenuator thickness other than 0.0 mm")
         return False
 
     def getAttList(self):
@@ -202,29 +167,13 @@ class Att:
 
 
 if __name__ == "__main__":
-    host = '172.24.242.59'
+    host = '172.24.242.54'
     port = 10101
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))
 
     att = Att(s)
-    att.init()
-    # att.setAttThick(0)
-    # att.move(3500)
-    # print att.setAttTrans(1.0,0.5)
-    # print att.getBestAtt(1.0000,0.2127)
-    # print att.getBestExpCondition(1.0000,0.02)
-    # print att.getBestExpCondition(1.4586,0.02)
-    # print att.getBestExpCondition(0.6888,0.02)
-
-    # Attenuator
-    # print att.calcAttFac(1.0,1000)
-    # print att.calcThickness(1.0,0.01)
-    # att.att1000um()
-    # att.att0um()
-    # att.att200um()
-    att.setAttThick(0)
-    # att.readBSSconfig()
-    # print att.getAttIndexConfig(5000)
+    # att.setNoAtt()
+    att.setAttThick(0.0)
 
     s.close()

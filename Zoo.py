@@ -2,9 +2,10 @@ import os,sys,glob
 import time, datetime
 import numpy as np
 import socket
-sys.path.append("/isilon/BL45XU/BLsoft/PPPP/10.Zoo/Libs/")
+sys.path.append("/isilon/BL41XU/BLsoft/PPPP/10.Zoo/Libs/")
 from MyException import *
 import logging
+import Date
 import logging.config
 
 # 150722 AM4:00
@@ -12,7 +13,9 @@ import logging.config
 
 #bss_srv="192.168.231.1"
 # 2021.02.16. Test from Ubuntu
-bss_srv="192.168.231.2"
+#bss_srv="192.168.231.2"
+# BL41XU
+bss_srv="192.168.215.2"
 bss_port=5555
 
 class Zoo:
@@ -27,6 +30,7 @@ class Zoo:
     def connect(self):
         self.bssr = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # Time out is set @2021/04/01 K.Hirata
+        # Time out is set @2022/04/11 K.Hirata at BL41XU
         self.bssr.settimeout(300.0)
         for i in range(0,20):
             try:
@@ -486,9 +490,10 @@ class Zoo:
     def exposeLN2(self, wait_time = 15.0):
         com = "put/defroster/on"
         self.bssr.sendall(com)
+        self.logger.info("Exposing now")
         recstr = self.bssr.recv(8000)
         time.sleep(wait_time)
-        print "Now closing the shutter"
+        self.logger.info("Now closing the shutter")
         com = "put/defroster/off"
         self.bssr.sendall(com)
         recstr = self.bssr.recv(8000)
@@ -574,18 +579,26 @@ class Zoo:
         recstr = self.bssr.recv(8000)
         print(recstr)
 
-
 if __name__ == "__main__":
+        # Logging setting
+    d = Date.Date()
+    time_str = d.getNowMyFormat(option="date")
+    logname = "/isilon/BL41XU/BLsoft/PPPP/10.Zoo/ZooLogs/zootest_%s.log" % time_str
+    logging.config.fileConfig('/isilon/BL41XU/BLsoft/PPPP/10.Zoo/Libs/logging.conf', defaults={'logfile_name': logname})
+    logger = logging.getLogger('ZOO')
+    os.chmod(logname, 0666)   	
+    
     zoo=Zoo()
     zoo.connect()
     print zoo.getSampleInformation()
-    #zoo.exposeLN2()
-    zoo.runScriptOnBSS("BLTune")
+    zoo.exposeLN2()
+    # zoo.pe_query()
+    #zoo.runScriptOnBSS("BLTune")
     #while(1):
     #zoo.skipSample()
     #zoo.dismountCurrPin()
     #zoo.sampleQuery()
-    #zoo.stop()
+    # zoo.stop()
     #time.sleep(10.0)
     #zoo.disconnectServers()
     #time.sleep(5.0)
@@ -607,7 +620,8 @@ if __name__ == "__main__":
 
     #time.sleep(60)
     #zoo.dismountCurrentPin()
-    zoo.waitTillReady()
+    # zoo.getCurrentPin()
+    # zoo.waitTillReady()
     #try:
     #zoo.mountSample("CPS0294",1)
     #zoo.waitTillReady()
@@ -625,7 +639,7 @@ if __name__ == "__main__":
     #zoo.ZoomDown()
     #schfile="/isilon/users/target/target/Staff/kuntaro/171118-PH/PH5deg-CPS0293-11/data/multi.sch"
     #schfile="/isilon/users/target/target/Staff/ZooTest/Schedule/test.sch"
-    #schfile="/isilon/users/target/target/Staff/ZooTest//lys07/data///lys07.sch"
+    uschfile="/isilon/users/target/target/Staff/ZooTest//lys07/data///lys07.sch"
     #zoo.setPhi(140.0)
     #schfile_hirata="/isilon/users/target/target/Staff/ZooTest/Schedule/test.sch"
     #schfile_yaruzo="/isilon/users/target/target/Staff/ZooTest/Schedule/yaruzo.sch"

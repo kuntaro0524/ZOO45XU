@@ -7,7 +7,7 @@ import BSSconfig
 import logging
 
 class AttFactor:
-    def __init__(self, config_file="/isilon/blconfig/bl45xu/bss/bss.config"):
+    def __init__(self, config_file="/isilon/blconfig/bl41xu/bss/bss.config"):
         dummy = 1
         self.isInit = False
         self.beamline_config=config_file

@@ -9,7 +9,7 @@ import numpy
 from socket import error as socket_error
 from MyException import *
 
-beamline = "BL45XU"
+beamline = "BL41XU"
 # Copy from BL32XU ZOO 210326 K. Hirata
 
 class Capture:
@@ -58,6 +58,13 @@ class Capture:
             #self.gain_default = 1400 #1400
             self.bright_default = 4300 #45000 YK@210302
             self.gain_default = 1200 #45000 YK@210302
+            if self.isDark == True:
+                self.bright_default = 40000
+                self.contrast_default = 60000
+        if beamline == "BL41XU":
+            self.contrast_default = 18000
+            self.bright_default = 14800 # "Exposure" at videoserve
+            self.gain_default = 1000 #45000 YK@210302
             if self.isDark == True:
                 self.bright_default = 40000
                 self.contrast_default = 60000
@@ -233,7 +240,7 @@ class Capture:
 
 if __name__ == "__main__":
     cap = Capture()
-    cappath = "/isilon/BL45XU/BLsoft/PPPP/10.Zoo/"
+    cappath = "/isilon/BL41XU/BLsoft/PPPP/10.Zoo/"
 
     print "START-connect from main"
     filename = os.path.join(cappath,"%s.ppm" % (sys.argv[1]))

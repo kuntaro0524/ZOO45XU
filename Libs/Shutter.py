@@ -10,9 +10,9 @@ import datetime
 class Shutter:
     def __init__(self, server):
         self.s = server
-        self.openmsg = "put/bl_45in_st2_shutter_1/on"
-        self.clsmsg = "put/bl_45in_st2_shutter_1/off"
-        self.qmsg = "get/bl_45in_st2_shutter_1/status"
+        self.openmsg = "put/bl_41in_st2_shutter_1/on"
+        self.clsmsg = "put/bl_41in_st2_shutter_1/off"
+        self.qmsg = "get/bl_41in_st2_shutter_1/status"
 
     def open(self):
         self.s.sendall(self.openmsg)

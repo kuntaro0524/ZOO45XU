@@ -422,7 +422,7 @@ class AnaHeatmap:
         xyz_hori_edge = self.getGonioXYZat(0, self.nh-1)
 
     def vectorTest2(self):
-        import EnlargedHeatmap
+        # import EnlargedHeatmap
         xyz_orig = self.getGonioXYZat(0,0)
         xyz_vert_edge = self.getGonioXYZat(self.nv-1,0)
         xyz_hori_edge = self.getGonioXYZat(0, self.nh-1)
@@ -673,7 +673,6 @@ class AnaHeatmap:
                     rlp, k=300, p=1, distance_upper_bound=0.011)
             # Bunch of processing
             print "RLP=", rlp
-
             print "DIST=", dist
             print "INDX=", idx
             for (d, i) in zip(dist, idx):
@@ -714,7 +713,7 @@ if __name__ == "__main__":
     # scan_path = "/Users/kuntaro0524/Dropbox/PPPP/Sandbox/14.HITO/01.SHIKA2map"
     # scan_path = "/Users/kuntaro0524/Dropbox/PPPP/Sandbox/14.HITO/02.MergedFunction/Data/"
     scan_path = sys.argv[1]
-    ahm = AnaHeatmap(scan_path, phi)
+    ahm = AnaHeatmap(scan_path)
 
     min_score = int(sys.argv[2])
     max_score = int(sys.argv[3])
@@ -732,8 +731,8 @@ if __name__ == "__main__":
     ahm.setMinMax(min_score, max_score)
     ahm.searchPixelBunch(prefix, True)
 
-    ahm.vectorTest2()
-    ahm.makeBinMap(prefix, "summary2binMap.png")
+    # ahm.vectorTest2()
+    # ahm.makeBinMap(prefix, "summary2binMap.png")
     # ahm.polygonSearch("summary2binMap.png", prefix="kakudai")
 
     """

@@ -52,7 +52,6 @@ if __name__ == "__main__":
 
     moni = BM(s)
     print moni.getPos()
-    moni.on()
     moni.off()
 
     s.close()

@@ -68,7 +68,6 @@ class UserESA:
                     "single":   [9999, 9999, 0.3, dose_ds, 0, exp_raster, att_raster, hebi_att, 0],
                     "helical":  [9999, 9999, 0.3, dose_ds, 0, exp_raster, att_raster, hebi_att, 0],
                     "multi":    [9999, 9999, 0.3, dose_ds, 0, exp_raster, att_raster, hebi_att, 0],
-                    "mixed":    [9999, 9999, 0.3, dose_ds, 0, exp_raster, att_raster, hebi_att, 0],
                 },
             },
             "normal":{
@@ -76,7 +75,6 @@ class UserESA:
                     "single":   [score_min, score_max, 0.1, dose_ds, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
                     "helical":  [score_min, 9999, 0.05, dose_ds, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
                     "multi":    [score_min, score_max, 0.1, dose_ds, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
-                    "mixed":    [score_min, 9999, 0.1, dose_ds, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
                 },
             },
             "high_dose_scan":{
@@ -84,7 +82,6 @@ class UserESA:
                     "single":   [score_min, 9999, 0.05, dose_ds, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
                     "helical":  [score_min, 9999, 0.05, dose_ds, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
                     "multi":    [score_min, 9999, 0.05, dose_ds, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
-                    "mixed":    [score_min, 9999, 0.05, dose_ds, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
                 },
             },
             "ultra_high_dose_scan":{
@@ -92,7 +89,6 @@ class UserESA:
                     "single":   [score_min, score_max, 0.2, dose_ds, raster_roi, exp_raster, 100, 100, cover_flag],
                     "helical":  [score_min, score_max, 0.2, dose_ds, raster_roi, exp_raster, 100, 100, cover_flag],
                     "multi":    [score_min, score_max, 0.2, dose_ds, raster_roi, exp_raster, 100, 100, cover_flag],
-                    "mixed":    [score_min, score_max, 0.2, dose_ds, raster_roi, exp_raster, 100, 100, cover_flag],
                 },
             },
             "phasing":{
@@ -100,7 +96,6 @@ class UserESA:
                     "single":   [score_min, score_max, 0.1, 5, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
                     "helical":  [score_min, 9999, 0.05, 5, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
                     "multi":    [score_min, score_max, 0.1, 5, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
-                    "mixed":    [score_min, score_max, 0.1, 5, raster_roi, exp_raster, att_raster, hebi_att, cover_flag],
                 },
             },
             "rapid":{
@@ -108,7 +103,6 @@ class UserESA:
                     "single":   [score_min, score_max, raster_dose, dose_ds, raster_roi, exp_raster, 100, 100, cover_flag],
                     "helical":  [score_min, score_max, raster_dose, dose_ds, raster_roi, exp_raster, 100, 100, cover_flag],
                     "multi":    [score_min, score_max, raster_dose, dose_ds, raster_roi, exp_raster, 100, 100, cover_flag],
-                    "mixed":    [score_min, score_max, raster_dose, dose_ds, raster_roi, exp_raster, 100, 100, cover_flag],
                 },
             },
         }
@@ -119,7 +113,7 @@ class UserESA:
         # Dose for scan
         import Raddose
         e = Raddose.Raddose()
-
+    
         energy = 12.3984 / wavelength
 
         # Normal raster scan : 2E10 photons/frame
@@ -127,7 +121,7 @@ class UserESA:
             photons_per_image = 4E10 # photons
             photons_per_exptime = flux * exp_raster
             trans = photons_per_image / photons_per_exptime * 100.0
-            print("Transmission = %10.5f" % trans)
+            print "Transmission = %10.5f" % trans
             att_raster = trans
             hebi_att = trans
 
@@ -135,20 +129,20 @@ class UserESA:
             dose_for_raster = 0.3 # MGy
             dose_per_exptime = e.getDose(beam_h, beam_v, flux, exp_raster, energy=energy)
             trans = dose_for_raster / dose_per_exptime * 100.0
-            print("Transmission = %10.5f" % trans)
+            print "Transmission = %10.5f" % trans
 
         elif desired_exp_string == "ultra_high_dose_scan":
             dose_for_raster = 1.0  # MGy
             dose_per_exptime = e.getDose(beam_h, beam_v, flux, exp_raster, energy=energy)
             trans = dose_for_raster / dose_per_exptime * 100.0
-            print("Transmission = %10.5f" % trans)
+            print "Transmission = %10.5f" % trans
 
         # When a calculated transmission exceeds '1.00'
         if trans > 100.0:
             mod_exp_raster = exp_raster * trans / 100.0
             trans = 100.0
-            print("The transmission is over 1.000!", trans)
-            print("Exposure time for raster scan is set to %5.2f sec" % mod_exp_raster)
+            print "The transmission is over 1.000!", trans
+            print "Exposure time for raster scan is set to %5.2f sec" % mod_exp_raster
         else:
             mod_exp_raster = exp_raster
 
@@ -177,7 +171,7 @@ class UserESA:
         if self.basename[1].count("xls"):
             book = xlrd.open_workbook(self.fname)
             for sname in book.sheet_names():
-                if sname.count("Sheet") or sname.count("ZOOPREP_"):
+                if sname.count("Sheet"):
                     sheet = book.sheet_by_name(sname)
                     xkey = None
                     for row in range(sheet.nrows):
@@ -294,10 +288,13 @@ class UserESA:
                          "reduced_fact,ntimes,meas_name,cry_min_size_um,cry_max_size_um,hel_full_osc,hel_part_osc,"
                          "raster_roi,ln2_flag,cover_scan_flag,zoomcap_flag,warm_time")
 
+        print(self.contents)
+
         for cols in self.contents:
             puckid              = cols[0].replace("-", "")
             pinid               = cols[1]
             mode                = cols[4]
+            print(cols[6])
             wavelength          = float(cols[6])
             loop_size           = float(cols[7])
             resolution_limit    = float(cols[8]) if float(cols[8]) <= 10.0 else 1.5
@@ -310,6 +307,7 @@ class UserESA:
             osc_width           = float(cols[13])
             type_crystal        = "soluble"
             anomalous_flag      = cols[5]
+            print(cols[14].lower())
             ln2_flag            = 0 if cols[14].lower().count("no") else 1
             pin_flag            = cols[15]
             zoom_flag           = 0 if cols[16].lower().count("no") else 1
@@ -318,7 +316,7 @@ class UserESA:
                 wait_time = 10
             elif pin_flag.lower() == "als + ssrl":
                 wait_time = 20
-            elif pin_flag.lower() == "copper":
+            elif pin_flag.lower() == "copper": 
                 wait_time = 60
             elif pin_flag.lower() == "no-wait":
                 wait_time = 0
@@ -333,7 +331,7 @@ class UserESA:
 
             # Reading flux value
             flux = self.bsconf.getFluxAtWavelength(hbeam, vbeam, wavelength)
-            print("Flux value is read from beamsize.conf: %5.2e\n" % flux)
+            print "Flux value is read from beamsize.conf: %5.2e\n" % flux
 
             # Dose estimation for raster scan
             score_min, score_max, raster_dose, dose_ds, raster_roi, exp_raster, att_raster, hebi_att, cover_flag = self.getParams(desired_exp, type_crystal, mode)
@@ -351,7 +349,7 @@ class UserESA:
                 cry_min_size = 25.0
                 cry_max_size = 25.0
 
-            self.conds.append((puckid, pinid, mode, wavelength, loop_size, resolution_limit, max_crystal_size, beamsize,
+            self.conds.append((puckid, pinid, mode, wavelength, loop_size, resolution_limit, max_crystal_size, beamsize, 
                 sample_name, desired_exp, n_crystals, total_osc, osc_width, type_crystal, anomalous_flag))
 
             if self.beamline.lower() == "bl32xu":

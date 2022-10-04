@@ -11,7 +11,6 @@ class KUMA:
         self.limit_dens = 1E10  # phs/um^2 this is for 1A wavelength
         # Kuntaro Log file
         self.logger = logging.getLogger('ZOO').getChild("KUMA")
-
         self.debug = True
 
     def setPhotonDensityLimit(self, value):
@@ -25,14 +24,13 @@ class KUMA:
         density = total_n_photons / area
         tmp_att_fac = self.limit_dens / density
         if self.debug == True:
-            print "att_factor=",tmp_att_fac
-            print "Nframes = ", nframes
-            print "total exp = ", total_exp_time
-            print "total photons = %8.2e" % total_n_photons
-            print "area = %8.2f  [um^2]" % area
-            print "density = %8.3e" % density, "photons/um^2"
-            print "Limit   = %8.3e" % self.limit_dens, "photons/um^2"
-
+            print("att_factor=",tmp_att_fac)
+            print("Nframes = ", nframes)
+            print("total exp = ", total_exp_time)
+            print("total photons = %8.2e" % total_n_photons)
+            print("area = %8.2f  [um^2]" % area)
+            print("density = %8.3e" % density, "photons/um^2")
+            print("Limit   = %8.3e" % self.limit_dens, "photons/um^2")
         attfactor = self.limit_dens * (crylen * vbeam_um * osc) / (phosec * exp_per_frame * tot_phi)
         return attfactor
 
@@ -74,18 +72,18 @@ class KUMA:
         if mod_transmission >= 1.0:
             exp_time = exptime_limit / float(n_frames)
             mod_transmission = 1.0
-            self.logger.info("Exposure time was replaced by %8.3f sec" % exp_time)
-            self.logger.info("Measurement time will be longer than the initial condition")
-            self.logger.info("Initial data collection time: %8.2f [sec]" % (exp_orig * float(n_frames)))
-            self.logger.info("Current data collection time: %8.2f [sec]" % (exp_time * float(n_frames)))
+            self.logger.info("Exposure time was replaced by %8.3f sec\n" % exp_time)
+            self.logger.info("Measurement time will be longer than the initial condition\n")
+            self.logger.info("Initial data collection time: %8.2f [sec]\n" % (exp_orig * float(n_frames)))
+            self.logger.info("Current data collection time: %8.2f [sec]\n" % (exp_time * float(n_frames)))
         # Attenuator is required
         else:
             exp_time = exp_orig
-            print "Exposure time is input value: %8.2f [sec]" % exp_orig
+            print("Exposure time is input value: %8.2f [sec]" % exp_orig)
         return exp_time, mod_transmission
 
     def getBestCondsHelical(self, cond, flux, dist_vec_mm):
-        # type: (condition dictionary, flux value) -> exp_time, best_transmission
+        # type: (condition dictionary, flux value) => exp_time, best_transmission
         self.logger.info("getBestCondsHelical starts\n")
 
         photon_density_limit = self.convDoseToDensityLimit(cond['dose_ds'], cond['wavelength'])
@@ -96,11 +94,11 @@ class KUMA:
         best_transmission = self.estimateAttFactor(cond['exp_ds'], cond['total_osc'],
                                                    cond['osc_width'], dist_vec_um, flux, cond['ds_vbeam'])
         # Dose slicing is considered
-        self.logger.info("KUMA: Best attenuation factor=%8.5f" % best_transmission)
-        self.logger.info("Reduced factor for dose slicing: %8.5f" % cond['reduced_fact'])
-        self.logger.info("The number of datasets to be collected: %5d" % cond['ntimes'])
+        self.logger.info("KUMA: Best attenuation factor=%8.5f\n" % best_transmission)
+        self.logger.info("Reduced factor for dose slicing: %8.5f\n" % cond['reduced_fact'])
+        self.logger.info("The number of datasets to be collected: %5d\n" % cond['ntimes'])
         mod_transmission = cond['reduced_fact'] * best_transmission
-        self.logger.info("modified transmission for dose slicing %9.5f" % mod_transmission)
+        self.logger.info("modified transmission for dose slicing %9.2f\n" % mod_transmission)
 
         # Attenuator is not required
         exp_orig = cond['exp_ds']
@@ -109,14 +107,14 @@ class KUMA:
         if mod_transmission >= 1.0:
             exp_time = exp_orig * mod_transmission
             mod_transmission = 1.0
-            print "Exposure time was replaced by %8.4f sec" % exp_time
+            print "Exposure time was replaced by %8.3f sec" % exp_time
             print "Measurement time will be longer than the initial condition"
             print "Initial data collection time: %8.2f [sec]" % (exp_orig * float(n_frames))
             print "Current data collection time: %8.2f [sec]" % (exp_time * float(n_frames))
         # Attenuator is required
         else:
             exp_time = exp_orig
-            self.logger.info("Exposure time is input value: %8.2f [sec]" % exp_orig)
+            self.logger.info("Exposure time is input value: %8.2f [sec]\n" % exp_orig)
 
         return exp_time, mod_transmission
 

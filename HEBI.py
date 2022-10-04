@@ -11,9 +11,10 @@ import CrystalList
 import logging
 import logging.config
 
-beamline = "BL45XU"
+beamline = "BL41XU"
 
 # version 2.0.0 2019/07/04
+# copied from BL45XU on 2022/04/12
 
 class HEBI():
     def __init__(self, zoo, loop_measurement, stopwatch, phosec):
@@ -62,7 +63,7 @@ class HEBI():
             self.logger.info("Minimum score = %s" % self.min_score_smallbeam)
             self.logger.info("Maximum score = %s" % self.max_score)
             ahm.setMinMax(self.min_score_smallbeam, self.max_score)
-        print "HEBI.getSortedCryList: AnaHeatmap.searchPixelBunch starts"
+        print("HEBI.getSortedCryList: AnaHeatmap.searchPixelBunch starts")
         crystal_array = ahm.searchPixelBunch(scan_prefix, self.naname_include)
         crystals = CrystalList.CrystalList(crystal_array)
         sorted_crystals = crystals.getSortedCrystalList()
@@ -86,12 +87,12 @@ class HEBI():
         wl = cond['wavelength']
         hebi_att = cond['hebi_att']
 
-        print "Face scan at XYZ=", center
+        print("Face scan at XYZ=", center)
         try:
             # Limited to 50 Hz
             schfile, raspath = self.lm.rasterMaster(scan_id, scan_mode, center, vrange_um, hrange_um,
                                                     vstep_um, hstep_um, phi_center, cond, isHEBI=True)
-            print schfile
+            print(schfile)
 
             self.zoo.doRaster(schfile)
             self.zoo.waitTillReady()
@@ -330,20 +331,20 @@ class HEBI():
 
             # Precise face scan for tiny crystal
             if precise_face_scan == True:
-                print "Precise face scan starts"
+                print("Precise face scan starts")
                 self.logger.info("HEBI.mainLoop: Precise face scan starts\n")
                 try:
                     lface_prefix = "lface%02d" % cry_index
                     left_face_path = self.do2Dscan(lface_prefix, lpos, cond, phi_face)
                 except:
-                    print "L face scan failed."
+                    print("L face scan failed.")
                     self.logger.info("HEBI.mainLoop: L face scan failed.\n")
                     continue
                 try:
                     rface_prefix = "rface%02d" % cry_index
                     right_face_path = self.do2Dscan(rface_prefix, rpos, cond, phi_face)
                 except:
-                    print "R face scan failed."
+                    print("R face scan failed.")
                     self.logger.info("HEBI.mainLoop: R face scan failed.\n")
                     continue
                 # Analyses of scanned map
@@ -353,7 +354,7 @@ class HEBI():
                     self.logger.info("Left  position precise 2D scan: %9.4f %9.4f %9.4f\n" % (
                     left_face_xyz[0], left_face_xyz[1], left_face_xyz[2]))
                 except:
-                    print "Analyze left scan failed."
+                    print("Analyze left scan failed.")
                     self.logger.info("HEBI.mainLoop: Left face scan failed.\n")
                     continue
                 try:
@@ -362,7 +363,7 @@ class HEBI():
                     self.logger.info("Right position precise 2D scan: %9.4f %9.4f %9.4f\n" % (
                     right_face_xyz[0], right_face_xyz[1], right_face_xyz[2]))
                 except:
-                    print "Analyze left scan failed."
+                    print("Analyze left scan failed.")
                     self.logger.info("HEBI.mainLoop: Right face scan failed.\n")
                     continue
             # for large crystals
@@ -402,7 +403,7 @@ class HEBI():
                 self.doSingle(final_xyz, cond, phi_face, "single")
 
             else:
-                print "Entering normal helical sequence."
+                print("Entering normal helical sequence.")
                 # Left edge vertical centering
                 try:
                     left_xyz = self.edgeCentering(cond, phi_face, left_face_xyz, LorR = "Left", cry_index=cry_index)
@@ -452,13 +453,13 @@ if __name__ == "__main__":
 
     index = 0
     for cry in sc:
-        print "############### CRYSTAL = %5d #############" % index
+        print("############### CRYSTAL = %5d #############" % index)
         cry.printAll()
-        print "score=", cry.getTotalScore()
+        print("score=", cry.getTotalScore())
         rpos, lpos = cry.getRoughEdges()
-        print "Crystal %d: " % index
-        print "R=", rpos[0], rpos[1], rpos[2]
-        print "L=", lpos[0], lpos[1], lpos[2]
+        print("Crystal %d: " % index)
+        print("R=", rpos[0], rpos[1], rpos[2])
+        print("L=", lpos[0], lpos[1], lpos[2])
         index += 1
 
     # scan_path_2dface=sys.argv[1]

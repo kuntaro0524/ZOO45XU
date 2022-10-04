@@ -2,7 +2,7 @@ import sys, os, math, cv2, socket
 import datetime
 import numpy as np
 
-sys.path.append("/isilon/BL45XU/BLsoft/PPPP/10.Zoo/Libs/")
+sys.path.append("/isilon/BL41XU/BLsoft/PPPP/10.Zoo/Libs/")
 from MyException import *
 import CryImageProc
 import CoaxImage
@@ -20,12 +20,12 @@ import matplotlib.pyplot as plt
 class INOCC:
     def __init__(self, ms, root_dir, sample_name="sample"):
         self.coi = CoaxImage.CoaxImage(ms)
-        self.fname = "/isilon/BL45XU/BLsoft/PPPP/10.Zoo/test.ppm"
+        self.fname = "/isilon/BL41XU/BLsoft/PPPP/10.Zoo/test.ppm"
         self.isInit = False
         self.debug = True
-        self.logdir = "/isilon/BL45XU/BLsoft/PPPP/10.Zoo/Log/"
-        self.backimg = "/isilon/BL45XU/BLsoft/PPPP/10.Zoo/BackImages/back-1905171850.ppm"
-        self.bssconfig_file = "/isilon/blconfig/bl45xu/bss/bss.config"
+        self.logdir = "/isilon/BL41XU/BLsoft/PPPP/10.Zoo/Log/"
+        self.backimg = "/isilon/BL41XU/BLsoft/PPPP/10.Zoo/BackImages/back-1905171850.ppm"
+        self.bssconfig_file = "/isilon/blconfig/bl41xu/bss/bss.config"
 
         # Directory for saving the INOCC result for each data
         self.sample_name = sample_name
@@ -41,9 +41,6 @@ class INOCC:
         self.phi_list = []
         self.area_list = []
 
-        # ROI counter
-        self.roi_counter=100
-
         # My logger
         self.logger = logging.getLogger('ZOO').getChild("INOCC")
 
@@ -57,7 +54,7 @@ class INOCC:
 
         # Making today's directory
         if os.path.exists(self.todaydir):
-            print "%s already exists" % self.todaydir
+            print("%s already exists" % self.todaydir)
         else:
             os.makedirs(self.todaydir)
             os.system("chmod a+rw %s" % self.todaydir)
@@ -67,17 +64,17 @@ class INOCC:
         # Get the newest number in 4 digits: like "0001","0099"
         num_prefix = dp.getRoundHeadPrefix(ndigit=4)
         self.loop_dir = "%s/%s_%s" % (self.todaydir, num_prefix, self.sample_name)
-        print "SELF=", self.loop_dir
+        print("SELF=", self.loop_dir)
 
         # Making today's directory
         if os.path.exists(self.loop_dir):
-            print "%s already exists" % self.loop_dir
+            print("%s already exists" % self.loop_dir)
         else:
             os.makedirs(self.loop_dir)
             os.system("chmod a+rw %s" % self.loop_dir)
 
         # self.raster_picpath = self.todaydir
-        print "Coax camera information will be acquired!"
+        print("Coax camera information will be acquired!")
 
         self.cip = CryImageProc.CryImageProc()
 
@@ -191,7 +188,7 @@ class INOCC:
             # print "DX, DZ = ", dx,dz
             ## self.cenx,self.ceny=self.coi.get_cross_pix()
             d_vertpix = top_xy[1] - self.ceny
-            print "DDDDDDDDDDD", d_vertpix
+            print("Vertical pix=", d_vertpix)
 
             if d_vertpix > 0:
                 move_direction = 1.0
@@ -208,7 +205,7 @@ class INOCC:
             left_flag, right_flag, lower_flag, upper_flag, n_true = cip.isTouchedToEdge(roi_cont)
             edge_flags = left_flag, right_flag, lower_flag, upper_flag, n_true
 
-            print "N_TRUE=", n_true
+            print("Number of true flags=", n_true)
 
             if n_true == 1 and right_flag == True:
                 isArea = True
@@ -254,7 +251,7 @@ class INOCC:
 
         contour = cip.getContour()
         area = cv2.contourArea(contour, prefix)
-        print "AREA = ", area
+        print("Detected loop area = ", area)
         return area
 
     # 2019/05/08 22:30 K.Hirata coded
@@ -273,7 +270,7 @@ class INOCC:
             else:
                 ok_flag = True
 
-            print "Area (flag = %s) : %8.2f at %8.2f" % (isArea, area, phi)
+            print("Area (flag = %s) : %8.2f at %8.2f" % (isArea, area, phi))
             # when the loop was found
             if isArea == True:
                 self.area_list.append((phi, area))
@@ -283,7 +280,7 @@ class INOCC:
                 phi += 10.0
                 self.coi.rotatePhi(phi)
                 vmove, area, isFound, isArea, edge_flags = self.capture_and_center(option="roi", roi_len=roi_len)
-                print "VMOOOOOOOOOOOOOOOOVE=", vmove
+                print("Vmove=", vmove)
                 if vmove > 0.0:
                     direction = 1.0
                 else:
@@ -318,30 +315,25 @@ class INOCC:
     def simpleCenter(self, phi, loop_size=600.0, option='top'):
         new_idx = self.ff.getNewIdx3()
         self.fname = "%s/%03d_center.ppm" % (self.loop_dir, new_idx)
-        self.logger.info("##################### TOP CENTERING %5.2f deg.\n" % phi)
-        self.logger.info("INOCC.coreCentering captures %s\n" % self.fname)
+        self.logfile.write("##################### TOP CENTERING %5.2f deg.\n" % phi)
+        self.logfile.write("INOCC.coreCentering captures %s\n" % self.fname)
         self.coi.rotatePhi(phi)
         cx, cy, cz, phi = self.coi.getGXYZphi()
         self.coi.get_coax_image(self.fname)
         # This instance is for this centering process only
         cip = CryImageProc.CryImageProc(logdir=self.loop_dir)
         cip.setImages(self.fname, self.backimg)
-        roi_image = os.path.join(self.loop_dir, "%03d_roi.png"%self.roi_counter)
-        cip.setROIpic(roi_image)
-        self.roi_counter+=1
         # This generates exception if it could not find any centering information
         xtarget, ytarget, area, hamidashi_flag = cip.getCenterInfo(loop_size=loop_size, option=option)
-        self.logger.info("PHI: %5.2f deg Option=%s Centering: (Xtarget, Ytarget) = (%5d, %5d) HAMIDASHI = %s\n"
+        self.logfile.write("PHI: %5.2f deg Option=%s Centering: (Xtarget, Ytarget) = (%5d, %5d) HAMIDASHI = %s\n"
                            % (phi, option, xtarget, ytarget, hamidashi_flag))
         x, y, z = self.coi.calc_gxyz_of_pix_at(xtarget, ytarget, cx, cy, cz, phi)
         self.coi.moveGXYZphi(x, y, z, phi)
 
-        self.logger.info(">>>>>> FILE=%s Area=%8.3f at %8.3f" % (self.fname, area, phi))
-
         return area, hamidashi_flag
 
     def suribachiCentering(self, phi_center, loop_size=600.0):
-        self.logger.info("OOOOOOOOOOOOOOOOOO  SURIBACHI STARTS center: %5.2f OOOOOOOOOOOOOO\n" % phi_center)
+        self.logfile.write("OOOOOOOOOOOOOOOOOO  SURIBACHI STARTS center: %5.2f OOOOOOOOOOOOOO\n" % phi_center)
         phi_range = 90.0
         phi_step = 10.0
         phi_min = phi_center - phi_range / 2.0
@@ -366,7 +358,7 @@ class INOCC:
                         found_phi_around_min = phi
                         break
                     except:
-                        print "PHI=%5.2f failed." % phi
+                        print("PHI=%5.2f failed." % phi)
                         continue
 
             phi_max = found_phi_around_min + 90.0
@@ -429,9 +421,8 @@ class INOCC:
                     # When the first centering succeeds, suribachi centering will start
                     area, hamidashi_flag = self.suribachiCentering(phi, loop_size=loop_size)
                     # area of ROI for facing
-                    # Comment out : 2021/05/31
-                    # phi_area_list.append((phi, area))
-                    # area_180 = area
+                    phi_area_list.append((phi, area))
+                    area_180 = area
                     # If all okay in suribachi centering
                     phi_vert = phi + 90.0
                     area, hamidashi_flag = self.simpleCenter(phi + 90.0, loop_size=loop_size, option='top')
@@ -450,6 +441,7 @@ class INOCC:
                     phi4 = phi + 180.0
                     area = self.rotatePhiAndGetArea(phi4, loop_size)
                     phi_area_list.append((phi4, area))
+
                     # 0.0 an 180.0 deg would be same area
                     phi_area_list.append((phi, area))
                     n_good = 4
@@ -475,7 +467,7 @@ class INOCC:
         # print self.mx,self.my,self.mz
         dista = math.sqrt(pow((gx - self.mx), 2.0) + pow((gy - self.my), 2.0) + pow(gz - self.mz, 2.0))
         if dista > self.ddist_thresh:
-            print "deltaDistance=%5.2f mm" % dista
+            print("deltaDistance=%5.2f mm" % dista)
             return False
         else:
             return True
@@ -489,7 +481,7 @@ class INOCC:
         for i in range(0, ntimes):
             try:
                 n_good, phi_area_list = self.coreCentering(phi_list, loop_size=loop_size)
-                print "NGOOD=", n_good
+                print("NGOOD=", n_good)
                 # Added 160514     
                 # A little bit dangerous modification
                 # 190514 I cannot understand this code
@@ -506,7 +498,7 @@ class INOCC:
         if n_good == 0:
             raise MyException("edgeCentering failed")
 
-        print "################### EDGE CENTERING ENDED ######################"
+        self.logger.info("################### EDGE CENTERING ######################")
         return n_good, phi_area_list
 
     def facing(self, phi_list):
@@ -599,16 +591,12 @@ class INOCC:
 
             phi_face = self.fitAndFace(phi_area_list)
             self.logger.info("Face angle=%8.2f deg."%phi_face)
-
             # adds offset angles for plate-like crystals
-            self.logger.info(">>>> offset angle setting <<<<<")
+            print "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
             phi_face = phi_face + offset_angle
             phi_small = phi_face + 90.0
-            self.logger.info(">>>> Simple centering <<<<<")
             self.simpleCenter(phi_small, loop_size, option="gravity")
             area, hamidashi_flag = self.simpleCenter(phi_face, loop_size, option="gravity")
-            self.logger.info("Hamidashi_flag = %s" % hamidashi_flag)
-            print("HAMIDASHI=",hamidashi_flag)
             # Re-centering if hamidashi_flag = True
             if hamidashi_flag == True:
                 self.simpleCenter(phi_face, loop_size, option="gravity")
@@ -623,33 +611,27 @@ class INOCC:
         raster_width = pix_size_um * float(xwidth)
         raster_height = pix_size_um * float(ywidth)
 
-        print "Width  = %8.1f[um]" % raster_width
-        print "Height = %8.1f[um]" % raster_height
-        print "Centering.doAll finished."
+        print("Width  = %8.1f[um]" % raster_width)
+        print("Height = %8.1f[um]" % raster_height)
+        print("Centering.doAll finished.")
 
         return raster_width, raster_height, phi_face, gonio_info
 
 
 if __name__ == "__main__":
     ms = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    ms.connect(("172.24.242.59", 10101))
-    root_dir = "/isilon/BL45XU/BLsoft/PPPP/10.Zoo/Test/"
-
-    beamline="BL32XU"
-    logname = "./inocc.log"
-    logging.config.fileConfig('/isilon/%s/BLsoft/PPPP/10.Zoo/Libs/logging.conf' % beamline, defaults={'logfile_name': logname})
-    logger = logging.getLogger('ZOO')
-    os.chmod(logname, 0666)
-
+    ms.connect(("172.24.242.54", 10101))
+    root_dir = "/isilon/BL41XU/BLsoft/PPPP/10.Zoo/Test/"
     inocc = INOCC(ms, root_dir)
     phi_face = 90
-
+    
     start_time = datetime.datetime.now()
     # backimg="/isilon/BL45XU/BLsoft/PPPP/10.Zoo/BackImages/back_210601.ppm"
     backimg = "/isilon/BL45XU/BLsoft/PPPP/10.Zoo/BackImages/back-2106011024.ppm"
+    
     inocc.setBack(backimg)
     # For each sample raster.png
-    raster_picpath = "/isilon/BL45XU/BLsoft/PPPP/10.Zoo/raster.png"
+    raster_picpath = "/isilon/BL41XU/BLsoft/PPPP/10.Zoo/raster.png"
     inocc.setRasterPicture(raster_picpath)
 
     # def doAll(self, ntimes=3, skip=False, loop_size=600.0, offset_angle=0.0):

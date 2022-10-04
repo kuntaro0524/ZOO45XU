@@ -1,9 +1,15 @@
+<<<<<<< HEAD
+<<<<<<< HEAD
 import sys
 import AnaHeatmap
 import LoopCrystals
+=======
+import Env,sys
+>>>>>>> bl41xu_latest
 
-scan_path = sys.argv[1]
+env = Env.Env()
 
+<<<<<<< HEAD
 ahm = AnaHeatmap.AnaHeatmap(scan_path)
 # Min & Max score value to pick up crystals
 min_score = 20
@@ -27,3 +33,20 @@ lc.analyze()
 dc_blocks = lc.getFinalCenteringInfo()
 
 print(dc_blocks)
+=======
+import cv2,sys,datetime
+
+lines = open(sys.argv[1],"r").readlines()
+
+for filename in lines:
+    timg = cv2.imread(filename.strip())
+    mean_value = timg.mean()
+    if mean_value < 100:
+        print "Lower bad file = %s" % filename
+    if mean_value > 200:
+        print "Higher bad file = %s" % filename
+    #print filename.strip(),timg.mean()
+>>>>>>> origin/puck_exchange
+=======
+print(env.bssconfig_path)
+>>>>>>> bl41xu_latest

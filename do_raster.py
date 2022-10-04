@@ -2,7 +2,7 @@ import os,sys,glob
 import time
 import numpy as np
 import socket
-sys.path.append("/isilon/BL45XU/BLsoft/PPPP/10.Zoo/Libs/")
+sys.path.append("/isilon/BL41XU/BLsoft/PPPP/10.Zoo/Libs/")
 from MyException import *
 import Zoo
 

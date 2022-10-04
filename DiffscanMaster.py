@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
 import sys, math, numpy, os
 
-sys.path.append("/isilon/BL32XU/BLsoft/PPPP/10.Zoo/Libs/")
+sys.path.append("/isilon/BL41XU/BLsoft/PPPP/10.Zoo/Libs/")
 import MyException
 import StopWatch
 import AnaHeatmap
@@ -9,7 +10,7 @@ import logging
 import logging.config
 import LoopCrystals
 
-beamline = "BL32XU"
+beamline = "BL41XU"
 
 class NOU():
     def __init__(self, zoo, loop_measurement, face_angle, phosec):
@@ -57,6 +58,7 @@ class NOU():
         self.time_limit = limit_minutes
 
     def junbiSuru(self, scan_path, cond, prefix):
+        self.logger.info("junbiSuru started...")
         ahm = AnaHeatmap.AnaHeatmap(scan_path)
         # Min & Max score value to pick up crystals
         self.min_score = cond['score_min']
@@ -95,6 +97,7 @@ class NOU():
 
     def sokuteiSuru(self, scan_path, cond, prefix):
         # Prepare 'data collection blocks'
+        self.logger.info("Data collection blocks analysis...")
         dc_blocks = self.junbiSuru(scan_path, cond, prefix)
         # number of all data collection blocks to be collected
         n_dc_blocks = len(dc_blocks)
@@ -424,6 +427,8 @@ class NOU():
             if cry_y_len <= (2.0 * cond['ds_hbeam']):
                 self.logger.info("Crystal size is smaller than the horizontal 2x beam size (%5.2f [um])" % cond['ds_hbeam'])
                 self.logger.info("Helical data collection is swithced to the single irradiation mode")
+                # 一時的にこうしてみるけど、引数としてもらってきたほうが良いかもしれん　2022/04/12
+                phi_face = (osc_start + osc_end) / 2.0
                 self.doSingle(left_xyz, cond, phi_face, prefix)
                 # Swithed to single data collection : vector should be the center of left/right edges.
                 cen_x = (left_xyz[0]+right_xyz[0])/2.0
@@ -522,10 +527,10 @@ class NOU():
             return -1
 
         if self.debug==True: 
-            print "OOOOOOOOOOOOOOOOOOOOOOOOOOOOO"
+            print("OOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
             for c in dc_blocks:
-                print c
-            print "OOOOOOOOOOOOOOOOOOOOOOOOOOOOO"
+                print(c)
+            print("OOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
     
         # Sorting data collection blocks
         # The top of crystal is the best one 
@@ -533,10 +538,10 @@ class NOU():
         dc_blocks.sort(cmp=compOscRange)
 
         if self.debug==True:
-            print "NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN"
+            print("NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN")
             for c in dc_blocks:
-                print c
-            print "NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN"
+                print(c)
+            print("NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN")
 
         self.isSorted=True
 
@@ -557,7 +562,7 @@ class NOU():
             self.logger.info("Minimum score = %s" % self.min_score_smallbeam)
             self.logger.info("Maximum score = %s" % self.max_score)
             ahm.setMinMax(self.min_score_smallbeam, self.max_score)
-        print "HEBI.getSortedCryList: AnaHeatmap.searchPixelBunch starts"
+        print("HEBI.getSortedCryList: AnaHeatmap.searchPixelBunch starts")
         crystal_array = ahm.searchPixelBunch(scan_prefix, self.naname_include)
         crystals = CrystalList.CrystalList(crystal_array)
         sorted_crystals = crystals.getSortedCrystalList()

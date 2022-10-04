@@ -1,36 +1,51 @@
-#!/bin/env python 
+#!/bin/env python
 import sys
 import socket
 import time
 import math
+#from tkinter import W
 #from pylab import *
 
 # My library
 from Motor import *
-from BSSconfig import *
+import BSSconfig
+
+import Env
 
 class Gonio:
-
     def __init__(self,server):
         self.s=server
-        self.goniox=Motor(self.s,"bl_45in_st2_gonio_1_x","pulse")
-        self.gonioy=Motor(self.s,"bl_45in_st2_gonio_1_y","pulse")
-        self.gonioz=Motor(self.s,"bl_45in_st2_gonio_1_z","pulse")
-        self.goniozz=Motor(self.s,"bl_45in_st2_gonio_1_zz","pulse")
-        self.phi=Motor(self.s,"bl_45in_st2_gonio_1_omega","pulse")
-        #self.enc=Enc()
-        #self.enc.openPort()
+        self.env = Env.Env()
+        self.bssconf = BSSconfig.BSSconfig(self.env.bssconfig_path)
+        self.bl_object = self.bssconf.getBLobject()
 
-        self.v2p_x = 4000
-        self.v2p_y = 10000
-        self.v2p_z = 4000
-        self.v2p_omega = 5000
-        self.v2p_zz = 10000
+        # axis names
+        self.x_name = "st2_gonio_1_x"
+        self.y_name = "st2_gonio_1_y"
+        self.z_name = "st2_gonio_1_z"
+        self.zz_name = "st2_gonio_1_zz"
+        self.phi_name = "st2_gonio_1_omega"
 
-        self.sense_x = 1
-        self.sense_y = 1
-        self.sense_z = -1
-        self.base=0.0
+        # axes definitions
+        self.goniox=Motor(self.s,"bl_%s_%s" % (self.bl_object, self.x_name),"pulse")
+        self.gonioy=Motor(self.s,"bl_%s_%s" % (self.bl_object, self.y_name),"pulse")
+        self.gonioz=Motor(self.s,"bl_%s_%s" % (self.bl_object, self.z_name),"pulse")
+        self.goniozz=Motor(self.s,"bl_%s_%s" % (self.bl_object, self.zz_name),"pulse")
+        self.phi=Motor(self.s,"bl_%s_%s" % (self.bl_object, self.phi_name),"pulse")
+        self.base = 0.0
+
+        # initialization flag
+        self.isPrep = False
+
+    def prepprep(self):
+        self.v2p_x, self.sense_x = self.bssconf.getPulseInfo(self.x_name)
+        self.v2p_y, self.sense_y = self.bssconf.getPulseInfo(self.y_name)
+        self.v2p_z, self.sense_z = self.bssconf.getPulseInfo(self.z_name)
+        self.v2p_zz, self.sense_zz = self.bssconf.getPulseInfo(self.zz_name)
+        self.v2p_phi, self.sense_phi = self.bssconf.getPulseInfo(self.phi_name)
+
+        print(self.v2p_x, self.sense_x, self.v2p_y, self.sense_y , self.v2p_x, self.sense_z , self.v2p_zz, self.sense_zz , self.v2p_phi, self.sense_phi )
+        self.isPrep = True
 
     def goMountPosition(self):
         bssconf=BSSconfig()
@@ -44,13 +59,13 @@ class Gonio:
         self.moveXYZmm(mountx,mounty,mountz)
 
     def setSpeed(self):
-        com="put/bl_45in_st2_gonio_1_phi_speed/1200000pps"
+        com="put/bl_41in_st2_gonio_1_phi_speed/1200000pps"
         return 0
 
     def getPhi(self):
         phi_pulse=self.phi.getPosition()
         #print phi_pulse
-        phi_deg=float(phi_pulse[0])/float(self.v2p_omega)+self.base
+        phi_deg=float(phi_pulse[0])/float(self.v2p_phi)+self.base
 
         phi_deg=round(phi_deg,3)
         #print phi_deg
@@ -103,7 +118,9 @@ class Gonio:
         #print "round %8.4f "%(move_y)
 
         # [um] to [pulse]
-        move_y=int(move_y*10)
+        # move_y=int(move_y*10)
+        um_to_pulse_y = self.v2p_y/1000.0
+        move_y=int(move_y*um_to_pulse_y)
 
         # final position
         final_y=curr_y+move_y
@@ -201,9 +218,9 @@ class Gonio:
         if phi<-720.0:
             phi=phi+720.0
 
-        dif=phi*self.v2p_omega
+        dif=phi*self.v2p_phi
 
-        orig=self.base*self.v2p_omega
+        orig=self.base*self.v2p_phi
         pos_pulse=-(orig+-dif)
 
         self.phi.move(pos_pulse)
@@ -275,6 +292,7 @@ class Gonio:
         self.gonioz.move(movez)
 
     def getXYZmm(self):
+        if self.isPrep == False: self.prepprep()
         x=self.getXmm()
         y=self.getYmm()
         z=self.getZmm()
@@ -282,6 +300,7 @@ class Gonio:
         return x,y,z
 
     def moveXYZmm(self,movex,movey,movez):
+        if self.isPrep == False: self.prepprep()
         # convertion
         xpulse=self.sense_x*movex*self.v2p_x
         ypulse=self.sense_y*movey*self.v2p_y
@@ -337,16 +356,23 @@ class Gonio:
         del self
 
 if __name__=="__main__":
-    host = '172.24.242.59'
+    host = '172.24.242.54'
     port = 10101
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host,port))
 
     gonio=Gonio(s)
-    #print gonio.rotatePhi(90)
-    print gonio.moveXYZmm(-0.750, 8.5, 0.020)
+
+    gonio.prepprep()
+    gonio.moveTrans(-1000.0)
+    # gonio.moveUpDown(400)
+    #print(gonio.getXYZmm())
+    # gonio.rotatePhi(90)
+    # gonio.rotatePhi(0.0)
+    # gonio.moveXYZmm(-1.320, -2.25, -1.27)
+    # print(gonio.getZZmm())
     #print gonio.getXYZmm()
-    #gonio.moveUpDown(200)
+    #print gonio.getPhi()
     #gonio.moveTrans(20)
     #for phi in [0,45,90,135]:
         #gonio.rotatePhi(phi)

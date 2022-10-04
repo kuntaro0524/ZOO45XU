@@ -8,7 +8,7 @@ class Raddose():
         self.hbeam_size_um = 10.0
         self.phosec = 2E12
         self.exptime = 1.0
-        self.common_dir = "/isilon/BL45XU/BLsoft/PPPP/RADDOSE/"
+        self.common_dir = "/isilon/BL41XU/BLsoft/PPPP/10.Zoo/RADDOSE/"
         self.con = 1500.0
 
     def setSalCon(self, con):

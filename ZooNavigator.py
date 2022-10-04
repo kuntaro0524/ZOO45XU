@@ -1,9 +1,12 @@
+# -*- coding: utf-8 -*-
 import sys, os, math, cv2, socket, time, copy
 import traceback
 import logging
 import numpy as np
 
-beamline = "BL45XU"
+
+beamline = "BL41XU"
+
 sys.path.append("/isilon/%s/BLsoft/PPPP/10.Zoo/Libs/" % beamline)
 sys.path.append("/isilon/%s/BLsoft/PPPP/10.Zoo/" % beamline)
 
@@ -23,16 +26,15 @@ import KUMA
 import CrystalList
 import Date
 import DiffscanMaster
-
 from html_log_maker import ZooHtmlLog
 
 import logging
 import logging.config
 
 def check_abort(lm):
-    print "Abort check"
+    print("Abort check")
     ret = lm.isAbort()
-    if ret: print "ABORTABORT"
+    if ret: print("ABORTABORT")
     return ret
 # check_abort()
 
@@ -42,7 +44,6 @@ def check_abort(lm):
 
 class ZooNavigator():
     def __init__(self, zoo, ms, esa_csv, is_renew_db=False):
-        print "ZooNavigator was called."
         # From arguments
         self.zoo = zoo
         self.esa_csv = esa_csv
@@ -82,14 +83,14 @@ class ZooNavigator():
 
         # Goniometer positions
         # The values will be updated by the current pin position
-        self.sx = -0.75
-        self.sy = 8.500
-        self.sz = 0.020
+        self.sx = -1.310
+        self.sy = -2.230
+        self.sz = -1.250
 
         # Goniometer mount position( will be read from BSS configure file)
-        self.mx = -0.75
-        self.my = 8.5000
-        self.mz = 0.020
+        self.mx = -1.310
+        self.my = -2.230
+        self.mz = -1.250
 
         # DB name
         self.phosec_meas = 0
@@ -102,13 +103,17 @@ class ZooNavigator():
         # Helical debugging
         self.helical_debug = False
 
+        # isDebug
+        self.isDebug = False
+
         # Measured flux and Beam size
         self.meas_beamh_list = []
         self.meas_beamv_list = []
         self.meas_flux_list = []
         self.meas_wavelength_list = []
 
-        self.needMeasureFlux = True  # test at 2019/06/18 at BL45XU
+        self.needMeasureFlux = True
+        self.pinphoto_channel = 3
 
         # If BSS can change beamsize via command
         self.doesBSSchangeBeamsize = True
@@ -117,21 +122,19 @@ class ZooNavigator():
         # For cleaning information
         self.num_pins = 0
         self.n_pins_for_cleaning = 16
-        self.cleaning_interval_hours = 0.75 #[hour]
+        self.cleaning_interval_hours = 1.0 #[hour]
         self.time_for_elongation = 0.0 #[sec]
 
         # Bukkake & capture
         self.isZoomCapture = True
 
         # Time limit
-        self.time_limit_ds = 9999 #[hours]
+        self.time_limit_ds = 9999.9 #[hours]
 
         # Flag for 10um raster scan at BL45XU
         self.isSpecialRasterStep = False
         self.beamsize_thresh_special_raster = 50.0
         self.special_raster_step = 25.0 # [um]
-        # Dark experiment
-        self.isDark = False
 
     def readZooDB(self, dbfile):
         self.esa = ESA.ESA(dbfile)
@@ -172,7 +175,7 @@ class ZooNavigator():
         # Wavelength is changed
         en = 12.3984 / cond['wavelength']
         # check energy
-        self.checkEnergy(cond, isTune=True)
+        self.changeEnergy(cond, isTune=True)
         # If the flux was measured in this beam sizes
         check_index = 0
         # Beam size for checking whether its flux was measured or not
@@ -209,8 +212,11 @@ class ZooNavigator():
 
         # Measure the flux
         self.logger.info("Measuring photon flux....")
-        self.phosec_meas = self.dev.measureFlux()
+        self.phosec_meas = self.dev.measureFlux(self.pinphoto_channel)
         # Adding measured flux & beam size to the list
+        print("BEAM")
+        print(beamh, beamv)
+        print("BEAM")
         self.meas_beamh_list.append(beamh)
         self.meas_beamv_list.append(beamv)
         self.meas_wavelength_list.append(cond['wavelength'])
@@ -244,7 +250,7 @@ class ZooNavigator():
                 self.dev.prepCentering()
                 self.logger.debug("Dummy capture for the first image")
                 self.dev.capture.capture(self.backimg)
-                time.sleep(0.5)
+                time.sleep(2)
                 self.logger.debug("The 2nd image..")
                 self.dev.capture.capture(self.backimg)
             except MyException, tttt:
@@ -255,17 +261,12 @@ class ZooNavigator():
             mean_value = timg.mean()
             if beamline.upper() == "BL32XU":
                 mean_thresh = 230
-            elif beamline.upper() == "BL45XU":
+            elif beamline.upper() == "BL45XU" or beamline.upper() == "BL41XU":
                 mean_thresh = 250
             if mean_value < 100:
                 self.logger.info("Background image seems to be bad with lower mean value than 100!")
                 continue
-            elif self.isDark == True and mean_value < 35:
-                self.logger.info("Dark experiments: mean value of the image is %5d" % mean_value)
-                self.logger.info("Background image seems to be bad with lower mean value than 50 in Dark!")
-                continue
             elif mean_value > mean_thresh:
-                self.logger.info("Mean value of the image is %5d" % mean_value)
                 self.logger.info("Background image seems to be bad with higher mean value than 200!")
                 continue
             else:
@@ -285,7 +286,7 @@ class ZooNavigator():
         self.logger.info("Transmission is set to %5.2f percent" % trans)
         self.att_idx = att_fact.getAttIndexConfig(best_thick)
 
-    def checkEnergy(self, cond, isTune=True):
+    def changeEnergy(self, cond, isTune=True):
         # Wavelength is changed
         current_wave = self.zoo.getWavelength()
         measure_wave = cond['wavelength']
@@ -321,12 +322,13 @@ class ZooNavigator():
                 cond = self.esa.getPriorPinCond()
                 self.processLoop(cond, checkEnergyFlag=True)
                 self.logger.info("ZN: processLoop has been finished for this pin.")
-            except:
+            except BaseException as e:
                 if self.num_pins == 0:
                     message = "Exception in ZN.processLoop: Please check CSV file or ZOODB file."
                 else:
                     message = "All measurements have been finished."
                 self.logger.info(message)
+                self.logger.debug(e)
                 return self.num_pins
             finally:
                 # Check for total consumed time
@@ -404,12 +406,12 @@ class ZooNavigator():
         # Everytime, energy_change_flag is updated.
         if checkEnergyFlag == True:
             self.logger.info("Wavelength will be checked.")
-            energy_change_flag = self.checkEnergy(cond)
+            # Change energy
+            energy_change_flag = self.changeEnergy(cond)
             # When the energy was changed in checkEnergy function
             if energy_change_flag == True:
-                if beamline.upper() == "BL45XU":
+                if beamline.upper() == "BL45XU" or beamline.upper() == "BL41XU":
                     self.logger.info("Wavelength will be changed.")
-                    self.zoo.setWavelength(cond['wavelength'])
                     self.logger.info("Wavelength has been changed. You should wait for 15 minutes")
                     time.sleep(15 * 60)
                     self.logger.info("Tuning is required.")
@@ -433,7 +435,8 @@ class ZooNavigator():
             if current_beam_index != beamsize_index:
                 self.logger.info("Beamsize index = %5d" % beamsize_index)
                 self.zoo.setBeamsize(beamsize_index)
-                if beamline.upper() == "BL45XU":
+                if beamline.upper() == "BL45XU" or beamline.upper() == "BL41XU":
+                #if beamline.upper() == "BL45XU":
                     self.logger.info("Tuning a beam position starts....")
                     self.zoo.runScriptOnBSS("BLTune")
                     self.dev.zoom.zoomOut()
@@ -590,8 +593,10 @@ class ZooNavigator():
             self.lm.roughCentering(self.backimg, cond['loopsize'], offset_angle=0.0)
             capture_name = "before_warmup.ppm"
             # Capture an image at 0.0 deg before warming
+            print("HERHERERERER")
             self.dev.gonio.rotatePhi(0.0)
             self.lm.captureImage(capture_name)
+            print("HERHERERERER")
             # Now warming up starts
             self.logger.info("ZOO starts warming up the loop.")
             # Recording start time
@@ -632,9 +637,10 @@ class ZooNavigator():
             self.esa.updateValueAt(o_index, "scan_height", self.rheight)
             self.esa.updateValueAt(o_index, "scan_width", self.rwidth)
 
-        except:
+        except BaseException as e:
             self.logger.error("ZOO detects exception in centering")
             self.logger.error("Go to next sample")
+            self.logger.debug(e)
             self.esa.updateValueAt(o_index, "isLoopCenter", -9999)
             self.esa.updateValueAt(o_index, "isDone", 5002)
             # Disconnecting capture in this loop's 'capture' instance
@@ -655,11 +661,10 @@ class ZooNavigator():
         capture_name = "before.ppm"
         self.lm.captureImage(capture_name)
 
-        if beamline.upper() == "BL45XU":
+        if beamline.upper() == "BL45XU" or beamline.upper()=="BL41XU":
             # LN2:ON -> ZoomCap:ON
             if cond['ln2_flag'] == 1:
-                # self.dev.zoom.move(2000)
-                self.dev.zoom.move(3200) # by N.Mizuno @2021/03/30
+                self.dev.zoom.move(4448)
                 capture_name = "loop_zoom.ppm"
                 self.lm.captureImage(capture_name)
                 # Bukkake
@@ -669,11 +674,10 @@ class ZooNavigator():
                 capture_name = "loop_zoom_ln2.ppm"
                 self.lm.captureImage(capture_name)
                 self.dev.zoom.zoomOut()
-            # ZoomCap:ON only (withough LN2 bukkake)
+            # ZoomCap:ON only (without LN2 bukkake)
             elif cond['zoomcap_flag'] == 1:
                 self.logger.info("Zoom capture will be conducted from now...")
-                # self.dev.zoom.move(2000)
-                self.dev.zoom.move(3200) # by N.Mizuno @2021/03/30
+                self.dev.zoom.move(4448)
                 capture_name = "loop_zoom.ppm"
                 self.lm.captureImage(capture_name)
                 self.dev.zoom.zoomOut()
@@ -688,7 +692,7 @@ class ZooNavigator():
             if self.dump_recov.checkAndRecover(cond['wavelength']) == False:
                 # 2019/04/21 K.Hirata Skipped at BL45XU
                 # self.bsc.changeBeamsizeHV(cond['raster_hbeam'],cond['raster_vbeam'])
-                print "skipping change beam size"
+                print("skipping change beam size")
 
         # Check point of 'skipping' this loop
         # check 'isSkip' in zoo.db
@@ -775,6 +779,7 @@ class ZooNavigator():
             # getSortedCryList copied from HEBI.py
             # Size of crystals?
             cxyz = 0, 0, 0
+            # ahm = AnaHeatmap.AnaHeatmap(raster_path, cxyz, sphi)
             ahm = AnaHeatmap.AnaHeatmap(raster_path)
             min_score = cond['score_min']
             max_score = cond['score_max']
@@ -1048,7 +1053,6 @@ class ZooNavigator():
         data_prefix = "%s-%02d-single" % (trayid, pinid)
 
         # Dose to limit exposure time
-        self.logger.info("KUMA will be called from now!!")
         kuma = KUMA.KUMA()
 
         # Photon flux is extracted from beamsize.config
@@ -1056,7 +1060,6 @@ class ZooNavigator():
             beamsizeconf = BeamsizeConfig.BeamsizeConfig(self.config_dir)
             flux = beamsizeconf.getFluxAtWavelength(cond['ds_hbeam'], cond['ds_vbeam'], cond['wavelength'])
             self.logger.info("Flux value is read from beamsize.conf: %5.2e."% flux)
-            #self.logger.info()
         else:
             flux = self.phosec_meas
             self.logger.info("Single: Beam size = %5.2f %5.2f um Measured flux : %5.2e" % (cond['ds_hbeam'], cond['ds_vbeam'], flux))
@@ -1085,7 +1088,7 @@ class ZooNavigator():
         self.data_proc_file.flush()
 
         # Disconnecting capture in this loop's 'capture' instance
-        print "Disconnecting capture"
+        print("Disconnecting capture")
         self.lm.closeCapture()
 
     # collectSingle
@@ -1095,11 +1098,10 @@ class ZooNavigator():
     def collectHelical(self, trayid, pinid, prefix, cond, sphi):
         o_index = cond['o_index']
         # Beamsize
-        print "now moving to the beam size to raster scan..."
-        print "Liar: beam size should be changed by BSS"
+        print("now moving to the beam size to raster scan...")
+        print("Liar: beam size should be changed by BSS")
         # self.bsc.changeBeamsizeHV(cond['raster_hbeam'],cond['raster_vbeam'])
 
-        # Initial 2D scan
         scan_id = "2d"
         gxyz = self.sx, self.sy, self.sz
         # Scan step is set to the same to the beam size
@@ -1164,12 +1166,12 @@ class ZooNavigator():
         self.lm.closeCapture()
         self.logger.info("Return to the main loop of 'process'")
 
+    # mixed schemeのコードをBL45XUの最新版からコピー
     def collectMixed(self, trayid, pinid, prefix, cond, sphi):
         # Pin index
         o_index = cond['o_index']
         # Beamsize
-        print "now moving to the beam size to raster scan..."
-
+        self.logger.info("now moving to the beam size to raster scan...")
         # Initial 2D scan
         scan_id = "2d"
         # is this required? 2021/06/02 K.Hirata
@@ -1197,8 +1199,10 @@ class ZooNavigator():
         self.esa.incrementInt(o_index, "isRaster")
         self.esa.addEventTimeAt(o_index, "raster_end")
 
+        self.logger.info("HITO will be running.")
         # HITO instance
         hito = DiffscanMaster.NOU(self.zoo, self.lm, sphi, self.phosec_meas)
+
         # Set the time limit for data collection from a pin.
         hito.setTimeLimit(15.0)
         try:
@@ -1287,7 +1291,7 @@ class ZooNavigator():
             # getSortedCryList copied from HEBI.py
             # Size of crystals?
             cxyz = 0, 0, 0
-            ahm = AnaHeatmap.AnaHeatmap(raster_path)
+            ahm = AnaHeatmap.AnaHeatmap(raster_path, cxyz, sphi)
             min_score = cond['score_min']
             max_score = cond['score_max']
             ahm.setMinMax(min_score, max_score)

@@ -31,7 +31,7 @@ class BeamsizeConfig:
 
     # BL41XU is using their specific settings
     def readConfig(self):
-        print "%s was read" % self.configfile
+        print("%s was read" % self.configfile)
         lines = open(self.configfile, "r").readlines()
 
         rflag = False
@@ -59,7 +59,7 @@ class BeamsizeConfig:
 
         if self.debug == True:
             for b in beam_params:
-                print b
+                print(b)
         beam_index = 1
         self.beamsize_flux_list = []
 
@@ -95,13 +95,13 @@ class BeamsizeConfig:
                     param_list = param_name, param_value, param_unit
                     object_param_list.append(param_list)
                     if self.debug == True:
-                        print object_param_list
+                        print(object_param_list)
 
                 if defstr.rfind("tc1_slit_1_height") != -1:
                     cols = defstr.split()
                     # print "SLIT-H",cols[2]
                     self.tcs_height.append(float(cols[2]))
-                    
+
                 if defstr.rfind("_flux_list") != -1:
                     #print "DEFSTR=",defstr
                     flux_cols = (defstr.strip().replace("_flux_list:", "")).split(",")
@@ -111,7 +111,7 @@ class BeamsizeConfig:
                     cols = defstr.split(':')
                     valstr = cols[1].replace("[", "").replace("]", "")
                     self.flux_const = float(valstr)
-                    print "Flux constant is overrided to %9.1e" % self.flux_const
+                    print("Flux constant is overrided to %9.1e" % self.flux_const)
 
             self.param_list.append(object_param_list)
 
@@ -120,7 +120,7 @@ class BeamsizeConfig:
 
         if self.debug == True:
             for bf, pm in zip(self.beamsize_flux_list, self.param_list):
-                print bf, pm
+                print(bf, pm)
 
     # Coded for BL41XU parameter list
     def getFluxAtWavelength(self, hsize, vsize, wavelength):
@@ -129,13 +129,14 @@ class BeamsizeConfig:
 
         #print len(self.beamsize_flux_list)
         #print self.beamsize_flux_list
-        print "Assessing beamsize ", hsize, vsize
+        print("Assessing beamsize ", hsize, vsize)
         for (h_beam, v_beam), flux_wave_list in self.beamsize_flux_list:
+            print(h_beam,v_beam)
             if h_beam == hsize and v_beam == vsize:
                 flux_list = flux_wave_list
                 break
 
-        print flux_list
+        print(flux_list)
         x = np.array(self.wl_list)
         y = np.array(flux_list)
 
@@ -214,7 +215,7 @@ class BeamsizeConfig:
         for beamparams in self.beamsize:
             bindex, h_beam, v_beam = beamparams
             flux_1A = self.getFluxAtWavelength(h_beam, v_beam, 1.0000)
-            print flux_1A
+            print(flux_1A)
             flux_list.append(flux_1A)
         return flux_list
 
@@ -231,19 +232,20 @@ class BeamsizeConfig:
                 return b_idx + 1, ff, flux
 
 if __name__ == "__main__":
-    config_dir = "/isilon/blconfig/bl45xu/"
+    #config_dir = "/isilon/blconfig/bl45xu/"
+    config_dir = os.environ['BLCONFIG']
     bsc = BeamsizeConfig(config_dir)
     # bsc.readConfig()
     tw, th, bs, ff = bsc.getBeamParamList()
-    print "LEN=",len(bs)
+    print("LEN=",len(bs))
     index = 1
     for b in bs:
         p, q, r = b
         #print "%5.1f (H) x %5.1f (V)um %5.3e" % (q, r, ff)
-        print "ALL=",p,q,r
+        print("ALL=",p,q,r)
         #print bsc.getBeamsizeAtIndex(0)
-    print "FLUX=",bsc.getFluxListForKUMA()
-    print "EEEEEEEEEEEEE=%e"%bsc.getFluxAtWavelength(20,20,1.4)
+    print("FLUX=",bsc.getFluxListForKUMA())
+    print("EEEEEEEEEEEEE=%e"%bsc.getFluxAtWavelength(20,20,1.4))
 
 # tcs_hmm=0.1
 # tcs_vmm=0.1

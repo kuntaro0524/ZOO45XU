@@ -1,4 +1,5 @@
-#!/bin/env python 
+#!/bin/env python
+# -*- coding: utf-8 -*-
 import sys
 import socket
 import time
@@ -7,40 +8,36 @@ import datetime
 # My library
 from Received import *
 from Motor import *
-from BSSconfig import *
+import BSSconfig
 from MyException import *
 
 #
 class Colli:
     def __init__(self, server):
+        self.bssconf = BSSconfig.BSSconfig('/isilon/blconfig/bl41xu/bss/bss.config')
+        self.bl_object = self.bssconf.getBLobject()
+
         self.s = server
-        self.coly = Motor(self.s, "bl_45in_st2_col_1_y", "pulse")
-        self.colz = Motor(self.s, "bl_45in_st2_col_1_z", "pulse")
+        self.coly_axis = "st2_col_1_y"
+        self.colz_axis = "st2_col_1_z"
 
-        self.off_pos = -20000  # pulse
-        self.on_pos = 0  # pulse
-
-        self.y_v2p = 500  # pulse/mm
-        self.z_v2p = 2000  # pulse/mm
+        self.coly = Motor(self.s, "bl_%s_%s" %(self.bl_object, self.coly_axis), "pulse")
+        self.colz = Motor(self.s, "bl_%s_%s" %(self.bl_object, self.colz_axis), "pulse")
 
         self.isInit = False
 
+    # 退避する軸はビームラインごとに違っているのでそれを取得する必要がある。
+    # 現時点では１軸しか取得できないのでそうでないビームライン（ビームストッパーをYZどちらも退避）が出てくると修正する必要がある
+    def getEvacuate(self):
+        self.evac_axis_name, self.on_pulse, self.off_pulse = self.bssconf.getEvacuateInfo("collimator")
+        print("ON (VME value):",self.on_pulse)
+        print("OFF(VME value):",self.off_pulse)
+        # 退避軸を自動認識してそれをオブジェクトとして設定してしまう
+        self.evac_axis = Motor(self.s, "bl_%s_%s" % (self.bl_object, self.evac_axis_name), "pulse")
+        self.isInit = True
+
     def go(self, pvalue):
         self.colz.nageppa(pvalue)
-
-    def getEvacuate(self):
-        bssconf = BSSconfig()
-
-        try:
-            tmpon, tmpoff = bssconf.getColli()
-        except MyException, ttt:
-            print ttt.args[0]
-
-        self.on_pos = float(tmpon) * self.z_v2p
-        self.off_pos = float(tmpoff) * self.z_v2p
-
-        self.isInit = True
-        print self.on_pos, self.off_pos
 
     def getY(self):
         tmp = int(self.coly.getPosition()[0])
@@ -53,12 +50,12 @@ class Colli:
     def on(self):
         if self.isInit == False:
             self.getEvacuate()
-        self.colz.move(self.on_pos)
+        self.evac_axis.move(self.on_pulse)
 
     def off(self):
         if self.isInit == False:
             self.getEvacuate()
-        self.colz.move(self.off_pos)
+        self.evac_axis.move(self.off_pulse)
 
     def goOn(self):
         if self.isInit == False:
@@ -440,7 +437,7 @@ class Colli:
 
 
 if __name__ == "__main__":
-    host = '172.24.242.59'
+    host = '172.24.242.54'
     port = 10101
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -448,12 +445,18 @@ if __name__ == "__main__":
 
     coli = Colli(s)
 
-    coli.getY()
-    coli.getZ()
-    
-    #coli.compareOnOff(1)
     coli.on()
-    #coli.off()
+    print(coli.getZ())
+    coli.off()
+    print(coli.getZ())
+
+    # coli.getEvacuate()
+
+    #coli.getY()
+
+    # coli.getEvacuate()
+    #coli.compareOnOff(1)
+    #coli.on()
 
     #coli.getY()
     #coli.getZ()

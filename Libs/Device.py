@@ -1,11 +1,15 @@
 #!/bin/env python
+# -*- coding: utf-8 -*-
+from cmath import log
 import sys
 import os
 import socket
 import time
 import datetime
 
-sys.path.append("/isilon/BL45XU/BLsoft/PPPP/")
+import Env
+
+# sys.path.append("/isilon/BL41XU/BLsoft/PPPP/")
 
 # My library
 import Singleton
@@ -28,7 +32,6 @@ import Light
 # import AnalyzePeak
 import Gonio
 import Colli
-import Cover
 import CCDlen
 import CoaxPint
 import MBS
@@ -38,13 +41,17 @@ import Flux
 import Mirror
 import MirrorTuneUnit
 import MyException
-import DetectorStage
-
+import DetectorCover
+import IntensityMonitor
 
 class Device(Singleton.Singleton):
-    def __init__(self, ms_port, bl="BL45XU"):
+    def __init__(self, ms_port, bl="BL41XU"):
         self.s = ms_port
         self.BL = bl.lower()
+        self.env = Env.Env()
+        print(self.env.beamline_lower)
+
+        self.isDebug = True
 
     def readConfig(self):
         conf = ConfigFile.ConfigFile()
@@ -74,7 +81,15 @@ class Device(Singleton.Singleton):
         # settings
         self.mono = Mono.Mono(self.s)
         if self.BL == "bl32xu":
+            import Cover
+            import DetectorStage
             self.tcs = TCS.TCS(self.s)
+            self.covz = Cover.Cover(self.s)
+            self.det_y = DetectorStage.DetectorStage(self.s)
+
+        if self.BL == "bl45xu":
+            self.covz = DetectorCover.DetectorCover(self.s)
+
         self.bm = BM.BM(self.s)
         self.f = File.File("./")
         self.capture = Capture.Capture()
@@ -87,14 +102,14 @@ class Device(Singleton.Singleton):
         self.id = ID.ID(self.s)
         self.light = Light.Light(self.s)
         self.gonio = Gonio.Gonio(self.s)
+        self.gonio.prepprep()
         self.colli = Colli.Colli(self.s)
         self.coax_pint = CoaxPint.CoaxPint(self.s)
         self.clen = CCDlen.CCDlen(self.s)
-        self.covz = Cover.Cover(self.s)
         self.shutter = Shutter.Shutter(self.s)
         self.mirror = Mirror.Mirror(self.s)
+        self.intensity_monitor= IntensityMonitor.IntensityMonitor(self.s)
         self.mtu = MirrorTuneUnit.MirrorTuneUnit(self.s)
-        self.det_y = DetectorStage.DetectorStage(self.s)
 
         # self.readConfig()
         # Optics
@@ -131,7 +146,7 @@ class Device(Singleton.Singleton):
         dtheta1 = int(self.mono.getDt1())
         print "Final dtheta1 = %d pls" % dtheta1
 
-    def changeEnergy(self, en, isTune=True, logpath="/isilon/BL45XU/BLsoft/Logs/Zoo/"):
+    def changeEnergy(self, en, isTune=True, logpath="/isilon/BL41XU/BLsoft/Logs/Zoo/"):
         # Energy change
         self.mono.changeE()
         # Gap
@@ -140,19 +155,23 @@ class Device(Singleton.Singleton):
             self.tuneDt1(logpath)
 
     def measureFlux(self, pin_ch=1):
+        print("Device.measureFlux")
         en = self.mono.getE()
         # preparation
+        if self.isDebug: print("prep measuring flux")
         self.prepMeasureFlux()
         # Measurement
         ipin, iic = self.countPin(pin_ch=pin_ch)
-        print ipin, iic
-        pin_uA = ipin / 10.0
-        iic_nA = iic / 100.0
-        # Photon flux estimation
-        print pin_uA, "uA"
 
         if self.BL == "bl45xu":
+            pin_uA = ipin / 10.0
+            iic_nA = iic / 100.0
             pin_uA = 2.0 * pin_uA
+
+        elif self.BL == "bl41xu":
+            if self.isDebug: print("PIN=", ipin)
+            pin_uA = ipin / 100.0
+
         ff = Flux.Flux(en)
         phosec = ff.calcFluxFromPIN(pin_uA)
         self.finishMeasureFlux()
@@ -178,7 +197,7 @@ class Device(Singleton.Singleton):
 
     # BL45XU measuring flux
     def prepMeasureFlux(self):
-        self.setPin("on")
+        self.intensity_monitor.on()
         self.bs.off()
         self.colli.on()
         self.shutter.open()
@@ -186,8 +205,7 @@ class Device(Singleton.Singleton):
 
     def finishMeasureFlux(self):
         self.shutter.close()
-        self.setPin("off")
-        self.bs.on()
+        self.intensity_monitor.off()
         self.colli.off()
         self.att.setAttThick(0.0)
 
@@ -263,7 +281,9 @@ class Device(Singleton.Singleton):
     # From evaluation stage of centering procedures, the same function should be used before capturing background image of OAV.
     def prepCentering(self):
         self.colli.off()
-        self.bs.off()
+        # BL41XU以外はBeamstopperをオフにしている→不要なのでは・・・
+        if self.BL!="bl41xu":
+            self.bs.off()
         self.light.on()
         self.zoom.zoomOut()
 
@@ -430,13 +450,13 @@ class Device(Singleton.Singleton):
 
 
 if __name__ == "__main__":
-    host = '172.24.242.59'
+    host = '172.24.242.54'
     port = 10101
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))
 
-    dev = Device(s, bl="bl45xu")
+    dev = Device(s, bl="bl41xu")
     dev.init()
 
     # dev.prepCapture()
@@ -445,15 +465,27 @@ if __name__ == "__main__":
     # en = dev.mono.getE()
     # print "EN=",en
     #dev.prepMeasureFlux()
-    # print dev.countPin(pin_ch = 1)
+    #print (dev.countPin(pin_ch = 1))
+    #print (dev.countPin(pin_ch = 2))
+    # dev.prepMeasureFlux()
+    # dev.closeShutters()
+    print (dev.countPin(pin_ch = 3))
+    # dev.openShutters()
+    # print (dev.countPin(pin_ch = 3))
     # print dev.measureFlux(pin_ch = 1)
     # print dev.measureFlux()
     # print dev.countPin(1)
     # print dev.countPin(2)
     # print dev.countPin(3)
+    # counts = dev.countPin(pin_ch=3)
+    # print(counts)
+    # pin_uA = float(counts[0])/100.0
+    # print("%e"%dev.calcFlux(12.3984, pin_uA))
+    dev.finishMeasureFlux()
 
-    phosec = dev.measureFlux()
-    print phosec
+    #dev.prepCentering()
+    dev.closeShutters()
+    # print phosec
 
     # print en
 

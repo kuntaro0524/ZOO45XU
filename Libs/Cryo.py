@@ -7,22 +7,20 @@ import time
 from Motor import *
 from BSSconfig import *
 
+
 class Cryo:
     def __init__(self, server):
         self.s = server
-        self.cryoz = Motor(self.s, "bl_45in_st2_cryo_1_x", "pulse")
+        self.cryoz = Motor(self.s, "bl_41in_st2_cryo_1_z", "pulse")
 
-        self.v2p = 500
+        self.v2p = 1250
         self.isInit = False
-        self.sense = -1
 
-        self.off_mon = 7500 # pulse
-        self.off_pos = 2500  # pulse 
-        self.on_pos = 0  # pulse 
-
-    def getPosition(self):
-        value = self.cryoz.getPosition()[0]
-        return value
+        # kawano (20100726)
+        #		self.off_pos=800 # pulse
+        #		self.on_pos=200 # pulse
+        self.off_pos = 1000  # pulse (add kawano@100726)
+        self.on_pos = 600  # pulse (add kawano@100726)
 
     def getEvacuate(self):
         bssconf = BSSconfig()
@@ -41,19 +39,12 @@ class Cryo:
     def on(self):
         if self.isInit == False:
             self.getEvacuate()
-        move_pulse = self.on_pos * self.sense
-        self.cryoz.move(move_pulse)
+        self.cryoz.move(self.on_pos)
 
     def off(self):
         if self.isInit == False:
             self.getEvacuate()
-        move_pulse = self.off_pos * self.sense
-        print move_pulse
-        self.cryoz.move(move_pulse)
-
-    def off4mon(self):
-        move_pulse = self.off_mon * self.sense
-        self.cryoz.move(move_pulse)
+        self.cryoz.move(self.off_pos)
 
     def offFull(self):
         self.cryoz.nageppa(2000)
@@ -99,7 +90,7 @@ class Cryo:
 
 
 if __name__ == "__main__":
-    host = '172.24.242.59'
+    host = '172.24.242.41'
     port = 10101
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -110,13 +101,7 @@ if __name__ == "__main__":
     # bm.off()
 
     cry = Cryo(s)
-    print cry.getPosition()
-    #cry.on()
-    cry.off()
-    #print cry.getPosition()
-    #cry.off4mon()
-    #print cry.getPosition()
-    #print cry.getEvacuate()
+    #cry.getEvacuate()
     # cry.go_and_check(0)
     # time.sleep(3)
     # cry.go_and_check(980)
