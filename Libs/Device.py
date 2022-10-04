@@ -9,8 +9,6 @@ import datetime
 
 import Env
 
-# sys.path.append("/isilon/BL41XU/BLsoft/PPPP/")
-
 # My library
 import Singleton
 import File

@@ -1,6 +1,10 @@
 import sys,math,numpy,os
-sys.path.append("/isilon/BL41XU/BLsoft/PPPP/10.Zoo/")
-sys.path.append("/isilon/BL41XU/BLsoft/PPPP/10.Zoo/Libs/")
+
+sys.path.append("./Libs")
+import Env
+env = Env.Env()
+sys.path.append(env.beamline_zoo_path)
+
 import Zoo
 import datetime
 import ZooNavigator

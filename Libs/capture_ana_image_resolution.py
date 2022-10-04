@@ -1,6 +1,10 @@
 import socket,os,sys,datetime,cv2,time,numpy
 
-sys.path.append("/isilon/BL41XU/BLsoft/PPPP/10.Zoo/Libs/")
+sys.path.append("./Libs")
+import Env
+env = Env.Env()
+sys.path.append(env.beamline_zoo_path)
+
 import Device
 import Capture
 import CryImageProc
@@ -8,9 +12,10 @@ import CryImageProc
 if __name__ == "__main__":
         blanc = '172.24.242.54'
         b_blanc = 10101
+        beamline = env.beamline
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((blanc,b_blanc))
-        backimg = "/isilon/BL41XU/BLsoft/PPPP/10.Zoo/220411_back.ppm"
+        backimg = "/isilon/%s/BLsoft/PPPP/10.Zoo/220411_back.ppm"%beamline
 
         dev=Device.Device(s)
         dev.init()

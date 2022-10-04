@@ -1,6 +1,10 @@
 import sys,os,math,numpy,socket,time,cv2
 import re
-sys.path.append("/isilon/BL41XU/BLsoft/PPPP/10.Zoo/Libs/")
+
+sys.path.append("./Libs")
+import Env
+env = Env.Env()
+sys.path.append(env.beamline_zoo_path)
 import MyException
 from Capture import *
 import Gonio

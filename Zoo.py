@@ -2,7 +2,12 @@ import os,sys,glob
 import time, datetime
 import numpy as np
 import socket
-sys.path.append("/isilon/BL41XU/BLsoft/PPPP/10.Zoo/Libs/")
+
+sys.path.append("./Libs")
+import Env
+env = Env.Env()
+sys.path.append(env.beamline_zoo_path)
+
 from MyException import *
 import logging
 import Date
