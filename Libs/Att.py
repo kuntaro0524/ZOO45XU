@@ -3,46 +3,80 @@ import sys
 import socket
 import time
 import math
+import Env
+import BSSconfig
 from numpy import *
 
 # My library
 from Motor import *
 
+
 class Att:
     def __init__(self, server):
         self.s = server
-        self.att1 = Motor(self.s, "bl_41in_st2_att_1_rx", "pulse")
-        self.att2 = Motor(self.s, "bl_41in_st2_att_2_rx", "pulse")
+        # ビームラインの名前など
+        self.env = Env.Env()
+        self.bssconf = BSSconfig.BSSconfig(self.env.bssconfig_path)
+        self.bl_object = self.bssconf.getBLobject()
+        # 大文字のビームライン名
+        self.beamline = self.env.beamline
 
-        self.bssconfig = "/blconfig/bss/bss.config"
+        # BL41XUは２つある/BL45XUは１つ
+        self.att1_name = "st2_att_1_rx"
+        if self.beamline == "BL41XU":
+            self.att2_name = "st2_att_2_rx"
+            self.att1 = Motor(self.s, "bl_%s_%s" %
+                              (self.bl_object, self.att1_name), "pulse")
+            self.att2 = Motor(self.s, "bl_%s_%s" %
+                              (self.bl_object, self.att2_name), "pulse")
+
+            # BL41XU ハードコードをしてしまう
+            self.att1_noatt_pulse = -20
+            self.att2_noatt_pulse = 0
+
+        else:
+            self.att1 = Motor(self.s, "bl_%s_%s" %
+                              (self.bl_object, self.att1_name), "pulse")
+            # BL45XU ハードコードをしてしまう
+            self.att1_noatt_pulse = 3500
+
         self.isInit = False
-        self.att1_noatt_pulse = -20
-        self.att2_noatt_pulse = 0
 
+    # BL41XU専用
     def setNoAtt(self):
         self.att1.move(self.att1_noatt_pulse)
         self.att2.move(self.att2_noatt_pulse)
-        pos1 = int(self.att1.getPosition()[0])
-        pos2 = int(self.att2.getPosition()[0])
-        print "Pos1/Pos2 =", pos1, pos2
 
-    # 220323 'init' function does not read 'bss.config' because 
+    # 220323 'init' function does not read 'bss.config' because
     # アッテネータを変更するのはBSSでやれば良いので
     # フラックスを測定するときだけ 0 アッテネータを実現できれば良い
     # というわけでこの関数の中身を変えてしまう
     # Get Thick - Index - Pulse
     def init(self):
-        confile = open(self.bssconfig, "r")
+        confile = open(self.bssconf, "r")
         lines = confile.readlines()
         confile.close()
         self.isInit = True
 
-    # For BL41XU set 0 mm is only activated.
     def setAttThick(self, thick):
-        if thick == 0.0:
-            self.setNoAtt()
+        # BL41XUのやつは複雑なのでゼロアッテネータにしか対応しない
+        if self.beamline=="BL41XU":
+            if thick == 0.0:
+                self.setNoAtt()
+            else:
+                print("Please do not modify attenuator thickness other than 0.0 mm")
+                sys.exit()
+        # 他のビームラインはbssconfigから読んでも問題はない
+        # BL45XUの最新のコードはこれになっているので倣う
         else:
-            print("Please do not modify attenuator thickness other than 0.0 mm")
+            # BSS config から該当のパラメタを読む
+            if self.isInit == False:
+                self.init()
+            for t_conf, p_conf in zip(self.att_thick, self.att_pulse):
+                if thick == t_conf:
+                    print("Set thickness to %5d [um]" % thick)
+                    self.move(p_conf)
+                    return True
         return False
 
     def getAttList(self):

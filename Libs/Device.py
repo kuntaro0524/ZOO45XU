@@ -71,8 +71,8 @@ class Device(Singleton.Singleton):
             self.count_time = conf.getCondition2("FIXED_POINT", "time")
 
         except MyException, ttt:
-            print ttt.args[0]
-            print "Check your config file carefully.\n"
+            print(ttt.args[0])
+            print("Check your config file carefully.\n")
             sys.exit(1)
 
     def init(self):
