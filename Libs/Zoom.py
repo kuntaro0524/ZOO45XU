@@ -5,20 +5,28 @@ import time
 
 from Motor import *
 import BSSconfig
+import Env
 
 class Zoom:
     def __init__(self, server):
-        self.bssconf = BSSconfig.BSSconfig('/isilon/blconfig/bl41xu/bss/bss.config')
-        self.zoom_info = self.bssconf.readZoomOption()
+        env = Env.Env()
+        self.bssconf = BSSconfig.BSSconfig(env.bssconfig_path)
+        self.bl_object = self.bssconf.getBLobject()
 
         self.s = server
-        self.axis = "bl_41in_st2_coax_1_zoom"
+        self.zoom_info = self.bssconf.readZoomOption()
+        # The minimum zoom -> Zoom out pulse
+        self.out_lim = int(self.zoom_info[0][1])
+        print("ZoomOut pulse=", self.out_lim)
+
+        self.axis = "bl_%s_st2_coax_1_zoom" % self.bl_object
+        print(self.axis)
         self.zoom = Motor(self.s, self.axis, "pulse")
 
         self.qcommand = "get/" + self.axis + "/" + "query"
 
         self.in_lim = "0"  # pulse
-        self.out_lim = "1480"  # pulse
+        # self.out_lim = "1480"  # pulse
 
     def go(self, pvalue):
         self.zoom.nageppa(pvalue)
@@ -58,14 +66,13 @@ class Zoom:
 
 
 if __name__ == "__main__":
-    # host = '192.168.163.1'
-    host = '172.24.242.54'
-    port = 10101
+    env=Env.Env()
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((host, port))
+    s.connect((env.ms_address, env.ms_port))
 
     zoom = Zoom(s)
+    print("Initialization finished")
     start = zoom.getPosition()
     zoom.zoomOut()
     # print start

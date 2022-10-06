@@ -17,7 +17,6 @@ class Colli:
     def __init__(self, server):
         env = Env.Env()
         self.bssconf = BSSconfig.BSSconfig(env.bssconfig_path)
-        self.bl_object = self.bssconf.getBLobject()
         self.s = server
         self.bl_object = self.bssconf.getBLobject()
 

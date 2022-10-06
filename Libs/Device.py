@@ -45,8 +45,8 @@ import IntensityMonitor
 class Device(Singleton.Singleton):
     def __init__(self, ms_port):
         self.s = ms_port
-        self.BL = env.beamline_lower
         self.env = Env.Env()
+        self.BL = self.env.beamline_lower
         print(self.env.beamline_lower)
 
         self.isDebug = True

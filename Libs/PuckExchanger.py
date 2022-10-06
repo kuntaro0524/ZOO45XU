@@ -114,7 +114,15 @@ class PuckExchanger():
     def groupPucksForNext(self, pucks_in_schedule, pucks_in_space):
         # python set　に変換
         pucks_in_schedule_set = set(pucks_in_schedule)
-        pucks_in_space_set = set(pucks_in_space)
+
+        new_pucks=[]
+        for puck in pucks_in_space:
+            if "Not-Mounted" in puck:
+                print("Skipping")
+            else:
+                new_pucks.append(puck)
+
+        pucks_in_space_set = set(new_pucks)
 
         # 今回触らないパック
         remain_pucks_set = pucks_in_space_set & pucks_in_schedule_set
@@ -131,8 +139,6 @@ class PuckExchanger():
         pucks_in_space = self.zoo.getSampleInformation()
         scheduled_pucks = self.readPuckInfoFromCSV(csvfile)
 
-        # 'Not-mounted' is invalid puck ID.
-        scheduled_pucks.remove('Not-Mounted')
 
         print("Pucks in SPACE=", pucks_in_space)
         print("Scheduled pucks=", scheduled_pucks)
