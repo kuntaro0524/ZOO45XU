@@ -10,8 +10,11 @@ class Env():
         # This is for BL41XU
         if self.beamline=="BL41XU":
             self.zoom_up_pulse=4448
+            self.mono_axis="tc1_stmono_1"
         elif self.beamline=="BL45XU":
             self.zoom_up_pulse=3200
+            self.mono_axis="tc1_mono_1"
+
         self.beamline_zoo_path = "/isilon/%s/BLsoft/PPPP/"%self.beamline
         self.beamline_lower = self.beamline.lower()
         self.blconfig_path = os.environ["BLCONFIG"]

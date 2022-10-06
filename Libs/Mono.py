@@ -1,4 +1,4 @@
-#!/bin/env python 
+# -*- coding: utf-8 -*-
 z2corr=False # 150918 Monochromator Z2 flag #Read 'calcZ2' part
 import sys
 import socket
@@ -10,18 +10,24 @@ from Motor import *
 from AxesInfo import *
 from ConfigFile import *
 from MyException import *
+import Env
+import BSSconfig
 
 class Mono:
- 
     def __init__(self,srv):
-	self.m_dtheta1=Motor(srv,"bl_41in_tc1_stmono_1_dtheta1","pulse")
-	self.m_theta=Motor(srv,"bl_41in_tc1_stmono_1","pulse")
-	self.m_thetay1=Motor(srv,"bl_41in_tc1_stmono_1_thetay1","pulse")
-	self.m_zt=Motor(srv,"bl_41in_tc1_stmono_1_zt","pulse")
-	self.m_z2=Motor(srv,"bl_41in_tc1_stmono_1_z2","pulse")
+        # ビームラインの名前など
+        self.s = srv
+        self.env = Env.Env()
+        self.bssconf = BSSconfig.BSSconfig(self.env.bssconfig_path)
+        self.bl_object = self.bssconf.getBLobject()
 
-	self.m_energy=Motor(srv,"bl_41in_tc1_stmono_1","kev")
-	self.m_wave=Motor(srv,"bl_41in_tc1_stmono_1","angstrom")
+	self.m_dtheta1=Motor(srv,"bl_%s_%s_dtheta1" % (self.bl_object, self.env.mono_axis),"pulse")
+	self.m_thetay1=Motor(srv,"bl_%s_%s_thetay1" % (self.bl_object, self.env.mono_axis) ,"pulse")
+	self.m_zt=Motor(srv,"bl_%s_%s_zt" % (self.bl_object, self.env.mono_axis),"pulse")
+	self.m_z2=Motor(srv,"bl_%s_%s_z2" % (self.bl_object, self.env.mono_axis),"pulse")
+
+	self.m_energy=Motor(srv,"bl_%s_%s" % (self.bl_object, self.env.mono_axis),"kev")
+	self.m_wave=Motor(srv,"bl_%s_%s" % (self.bl_object, self.env.mono_axis), "angstrom")
 	self.s=srv
 
     def getE(self):
@@ -364,11 +370,9 @@ class Mono:
         return fwhm,counter_1_max
   
 if __name__=="__main__":
-	host = '172.24.242.54'
-	port = 10101
-	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	s.connect((host,port))
-	
-	mono=Mono(s)
-    	print mono.getE()
-	s.close()
+    env=Env.Env()
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((env.ms_address,env.ms_port))
+    mono=Mono(s)
+    print(mono.getE())
+    s.close()

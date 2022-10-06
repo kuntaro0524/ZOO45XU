@@ -454,17 +454,18 @@ if __name__ == "__main__":
     dev = Device(s)
     dev.init()
 
-    #dev.shutter.close()
+    dev.measureFlux()
     # dev.intensity_monitor.off()
     # dev.intensity_monitor.on()
-    dev.att.setAttThick(0.0)
+    # dev.att.setAttThick(0.0)
 
     # dev.prepCapture()
     # dev.finishCapture()
 
     # en = dev.mono.getE()
     # print "EN=",en
-    #dev.prepMeasureFlux()
+    # dev.prepMeasureFlux()
+    # dev.finishMeasureFlux()
     #print (dev.countPin(pin_ch = 1))
     #print (dev.countPin(pin_ch = 2))
     # dev.prepMeasureFlux()
