@@ -16,12 +16,13 @@ import logging.config
 # 150722 AM4:00
 # Debug: when SPACE has some troubles Zoo stops immediately
 
-#bss_srv="192.168.231.1"
+# Address description is as followings
 # 2021.02.16. Test from Ubuntu
-#bss_srv="192.168.231.2"
+# BL45XU 
+# bss_srv="192.168.231.2"
 # BL41XU
-bss_srv="192.168.215.2"
-bss_port=5555
+# bss_srv="192.168.215.2"
+# bss_port=5555
 
 class Zoo:
     def __init__(self,emulator=True):
@@ -39,7 +40,7 @@ class Zoo:
         self.bssr.settimeout(300.0)
         for i in range(0,20):
             try:
-                self.bssr.connect((bss_srv, bss_port))
+                self.bssr.connect((env.bss_address, env.bss_port))
                 self.isConnect=True
                 return True
             except MyException, ttt:
@@ -588,15 +589,15 @@ if __name__ == "__main__":
         # Logging setting
     d = Date.Date()
     time_str = d.getNowMyFormat(option="date")
-    logname = "/isilon/BL41XU/BLsoft/PPPP/10.Zoo/ZooLogs/zootest_%s.log" % time_str
-    logging.config.fileConfig('/isilon/BL41XU/BLsoft/PPPP/10.Zoo/Libs/logging.conf', defaults={'logfile_name': logname})
+    logname = "/isilon/BL45XU/BLsoft/PPPP/10.Zoo/ZooLogs/zootest_%s.log" % time_str
+    logging.config.fileConfig('/isilon/BL45XU/BLsoft/PPPP/10.Zoo/Libs/logging.conf', defaults={'logfile_name': logname})
     logger = logging.getLogger('ZOO')
     os.chmod(logname, 0666)   	
     
     zoo=Zoo()
     zoo.connect()
     print zoo.getSampleInformation()
-    zoo.exposeLN2()
+    # zoo.exposeLN2()
     # zoo.pe_query()
     #zoo.runScriptOnBSS("BLTune")
     #while(1):

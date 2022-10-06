@@ -1,8 +1,9 @@
-#!/bin/env python
 # -*- coding: utf-8 -*-
 import sys
 import socket
 import time
+
+import Env
 
 # My library
 from Received import *
@@ -13,20 +14,23 @@ from Count import *
 
 class BS:
     def __init__(self, server):
-        self.bssconf = BSSconfig.BSSconfig('/isilon/blconfig/bl41xu/bss/bss.config')
-        self.s = server
-        self.bs_y = Motor(self.s, "bl_41in_st2_bs_1_y", "pulse")
-        self.bs_z = Motor(self.s, "bl_41in_st2_bs_1_z", "pulse")
+        env = Env.Env()
+        self.bssconf = BSSconfig.BSSconfig(env.bssconfig_path)
         self.bl_object = self.bssconf.getBLobject()
-        self.sense_y = -1
-        self.sense_z = 1
+        self.s = server
 
+        # axis names
+        self.y_name="st2_bs_1_y"
+        self.z_name="st2_bs_1_z"
+        self.bs_y=Motor(self.s,"bl_%s_%s" % (self.bl_object, self.y_name),"pulse")
+        self.bs_z=Motor(self.s,"bl_%s_%s" % (self.bl_object, self.z_name),"pulse")
+
+        # axis names
+        self.v2p_y, self.sense_y = self.bssconf.getPulseInfo(self.y_name)
+        self.v2p_z, self.sense_z = self.bssconf.getPulseInfo(self.z_name)
         self.isInit = False
-        self.v2p = 1000
 
         # Default value
-        self.off_pos = -24990  # pulse
-        self.on_pos = 42625  # pulse
         self.evac_large_holder = -10000
 
     # 退避する軸はビームラインごとに違っているのでそれを取得する必要がある。
@@ -98,7 +102,7 @@ class BS:
 
 
 if __name__ == "__main__":
-    host = '172.24.242.54'
+    host = '172.24.242.59'
     port = 10101
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))

@@ -663,7 +663,7 @@ class ZooNavigator():
         if self.beamline.upper() == "BL45XU" or self.beamline.upper()=="BL41XU":
             # LN2:ON -> ZoomCap:ON
             if cond['ln2_flag'] == 1:
-                self.dev.zoom.move(4448)
+                self.dev.zoom.move(env.zoom_up_pulse)
                 capture_name = "loop_zoom.ppm"
                 self.lm.captureImage(capture_name)
                 # Bukkake
@@ -676,7 +676,7 @@ class ZooNavigator():
             # ZoomCap:ON only (without LN2 bukkake)
             elif cond['zoomcap_flag'] == 1:
                 self.logger.info("Zoom capture will be conducted from now...")
-                self.dev.zoom.move(4448)
+                self.dev.zoom.move(env.zoom_up_pulse)
                 capture_name = "loop_zoom.ppm"
                 self.lm.captureImage(capture_name)
                 self.dev.zoom.zoomOut()

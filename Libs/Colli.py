@@ -4,6 +4,7 @@ import sys
 import socket
 import time
 import datetime
+import Env
 
 # My library
 from Received import *
@@ -14,7 +15,10 @@ from MyException import *
 #
 class Colli:
     def __init__(self, server):
-        self.bssconf = BSSconfig.BSSconfig('/isilon/blconfig/bl41xu/bss/bss.config')
+        env = Env.Env()
+        self.bssconf = BSSconfig.BSSconfig(env.bssconfig_path)
+        self.bl_object = self.bssconf.getBLobject()
+        self.s = server
         self.bl_object = self.bssconf.getBLobject()
 
         self.s = server
@@ -437,7 +441,7 @@ class Colli:
 
 
 if __name__ == "__main__":
-    host = '172.24.242.54'
+    host = '172.24.242.59'
     port = 10101
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

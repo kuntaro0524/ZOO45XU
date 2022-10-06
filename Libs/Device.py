@@ -43,9 +43,9 @@ import DetectorCover
 import IntensityMonitor
 
 class Device(Singleton.Singleton):
-    def __init__(self, ms_port, bl="BL41XU"):
+    def __init__(self, ms_port):
         self.s = ms_port
-        self.BL = bl.lower()
+        self.BL = env.beamline_lower
         self.env = Env.Env()
         print(self.env.beamline_lower)
 
@@ -448,14 +448,15 @@ class Device(Singleton.Singleton):
 
 
 if __name__ == "__main__":
-    host = '172.24.242.54'
-    port = 10101
+    env=Env.Env()
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((host, port))
+    s.connect((env.ms_address, env.ms_port))
 
-    dev = Device(s, bl="bl41xu")
+    dev = Device(s)
     dev.init()
+
+    dev.bs.off()
 
     # dev.prepCapture()
     # dev.finishCapture()
@@ -467,7 +468,7 @@ if __name__ == "__main__":
     #print (dev.countPin(pin_ch = 2))
     # dev.prepMeasureFlux()
     # dev.closeShutters()
-    print (dev.countPin(pin_ch = 3))
+    # print (dev.countPin(pin_ch = 3))
     # dev.openShutters()
     # print (dev.countPin(pin_ch = 3))
     # print dev.measureFlux(pin_ch = 1)
@@ -479,10 +480,10 @@ if __name__ == "__main__":
     # print(counts)
     # pin_uA = float(counts[0])/100.0
     # print("%e"%dev.calcFlux(12.3984, pin_uA))
-    dev.finishMeasureFlux()
+    # dev.finishMeasureFlux()
 
     #dev.prepCentering()
-    dev.closeShutters()
+    # dev.closeShutters()
     # print phosec
 
     # print en
