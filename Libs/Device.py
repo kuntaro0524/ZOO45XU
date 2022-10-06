@@ -47,9 +47,7 @@ class Device(Singleton.Singleton):
         self.s = ms_port
         self.env = Env.Env()
         self.BL = self.env.beamline_lower
-        print(self.env.beamline_lower)
-
-        self.isDebug = True
+        self.isDebug = False
 
     def readConfig(self):
         conf = ConfigFile.ConfigFile()
@@ -456,7 +454,10 @@ if __name__ == "__main__":
     dev = Device(s)
     dev.init()
 
-    dev.bs.off()
+    #dev.shutter.close()
+    # dev.intensity_monitor.off()
+    # dev.intensity_monitor.on()
+    dev.att.setAttThick(0.0)
 
     # dev.prepCapture()
     # dev.finishCapture()

@@ -10,7 +10,6 @@ from numpy import *
 # My library
 from Motor import *
 
-
 class Att:
     def __init__(self, server):
         self.s = server
@@ -44,8 +43,11 @@ class Att:
 
     # BL41XU専用
     def setNoAtt(self):
-        self.att1.move(self.att1_noatt_pulse)
-        self.att2.move(self.att2_noatt_pulse)
+        if self.beamline=="BL41XU":
+            self.att1.move(self.att1_noatt_pulse)
+            self.att2.move(self.att2_noatt_pulse)
+        elif self.beamline=="BL45XU":
+            self.att1.move(self.att1_noatt_pulse)
 
     # 220323 'init' function does not read 'bss.config' because
     # アッテネータを変更するのはBSSでやれば良いので
@@ -53,30 +55,21 @@ class Att:
     # というわけでこの関数の中身を変えてしまう
     # Get Thick - Index - Pulse
     def init(self):
-        confile = open(self.bssconf, "r")
+        print("Opening %s" % self.env.bssconfig_path)
+        confile = open(self.env.bssconfig_path, "r")
         lines = confile.readlines()
         confile.close()
         self.isInit = True
 
     def setAttThick(self, thick):
         # BL41XUのやつは複雑なのでゼロアッテネータにしか対応しない
-        if self.beamline=="BL41XU":
-            if thick == 0.0:
-                self.setNoAtt()
-            else:
-                print("Please do not modify attenuator thickness other than 0.0 mm")
-                sys.exit()
-        # 他のビームラインはbssconfigから読んでも問題はない
-        # BL45XUの最新のコードはこれになっているので倣う
+        if thick == 0.0:
+            self.setNoAtt()
+            return True
         else:
-            # BSS config から該当のパラメタを読む
-            if self.isInit == False:
-                self.init()
-            for t_conf, p_conf in zip(self.att_thick, self.att_pulse):
-                if thick == t_conf:
-                    print("Set thickness to %5d [um]" % thick)
-                    self.move(p_conf)
-                    return True
+            print("Please do not modify attenuator thickness other than 0.0 mm")
+            sys.exit()
+
         return False
 
     def getAttList(self):

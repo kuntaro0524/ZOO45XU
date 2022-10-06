@@ -7,11 +7,14 @@ import time
 from Received import *
 from Motor import *
 import BSSconfig
+import Env
 
 # information of collision between BM and Gonio
 class IntensityMonitor:
     def __init__(self, server):
-        self.bssconf = BSSconfig.BSSconfig('/isilon/blconfig/bl41xu/bss/bss.config')
+        env = Env.Env()
+        self.bssconf = BSSconfig.BSSconfig(env.bssconfig_path)
+        self.s = server
         self.bl_object = self.bssconf.getBLobject()
 
         self.s = server
