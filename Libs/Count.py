@@ -7,17 +7,23 @@ import timeit
 
 from Received import *
 from File import *
+import Env
+import BSSconfig
 
 class Count:
-
     def __init__(self, server, ch1, ch2):
         self.s = server
         self.ch1 = ch1 + 1
         self.ch2 = ch2 + 1
         self.is_count = 0
 
-        self.beamline="BL41XU"
-        self.blstr = "41in"
+        self.env = Env.Env()
+        self.bssconf = BSSconfig.BSSconfig(self.env.bssconfig_path)
+        self.s = server
+        self.bl_object = self.bssconf.getBLobject()
+
+        self.beamline=self.env.beamline_lower
+        self.blstr = self.bl_object
 
     def setCountSec(self, cnttime):
         strtime = str(cnttime) + "sec"
@@ -187,10 +193,9 @@ class Count:
         # flux=(3.6/energy)*(1/(1-exp(absorption)*2.33*0.03)*(currennt/1.602E-19)
 
 if __name__ == "__main__":
-    host = '172.24.242.54'
-    port = 10101
+    env=Env.Env()
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((host, port))
+    s.connect((env.ms_address, env.ms_port))
 
     counter = Count(s, 0, 1)
     print (counter.getCount(1.0))

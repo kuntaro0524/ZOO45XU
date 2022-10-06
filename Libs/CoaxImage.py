@@ -10,6 +10,7 @@ from Capture import *
 import Gonio
 import Zoom
 import CoaxPint
+import BSSconfig
 #import CryImageProc as CIP
 
 def read_camera_inf(infin):
@@ -169,9 +170,11 @@ class CoaxImage:
     # get_coax_center()
 
     def get_zoom(self):
-        self.ms.sendall("get/bl_41in_st2_coax_1_zoom/query")
         recbuf = self.ms.recv(8000)
         print "debug::", recbuf
+        self.bssconf = BSSconfig.BSSconfig(env.bssconfig_path)
+        self.bl_object = self.bssconf.getBLobject()
+        self.ms.sendall("get/bl_%s_st2_coax_1_zoom/query"%self.bl_object)
 
         sp = recbuf.split("/")
         if len(sp) == 5:

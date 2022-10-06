@@ -878,7 +878,7 @@ if __name__=="__main__":
     #testimage = "Data/test03.ppm" # upper hamideteru
     #testimage = sys.argv[1]
     testimage = "../test.ppm"
-    cip.setImages(testimage,"../BackImages/back-1905171850.ppm")
+    cip.setImages(testimage,"./back.ppm")
 
     prefix = "tttt"
     cont = cip.getContour()

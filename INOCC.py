@@ -622,14 +622,14 @@ class INOCC:
 
 if __name__ == "__main__":
     ms = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    ms.connect(("172.24.242.54", 10101))
-    root_dir = "/isilon/BL41XU/BLsoft/PPPP/10.Zoo/Test/"
+    ms.connect(("172.24.242.59", 10101))
+    root_dir = "/isilon/BL45XU/BLsoft/PPPP/10.Zoo/Test/"
     inocc = INOCC(ms, root_dir)
     phi_face = 90
     
     start_time = datetime.datetime.now()
     # backimg="/isilon/BL45XU/BLsoft/PPPP/10.Zoo/BackImages/back_210601.ppm"
-    backimg = "/isilon/BL45XU/BLsoft/PPPP/10.Zoo/BackImages/back-2106011024.ppm"
+    backimg = "/isilon/BL45XU/BLsoft/PPPP/10.Zoo/back.ppm"
     
     inocc.setBack(backimg)
     # For each sample raster.png

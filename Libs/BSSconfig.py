@@ -225,7 +225,7 @@ class BSSconfig:
     def getEvacuateInfo(self, type_axis):
         if self.isPrepDict == False:
             self.storeAxesBlocks()
-
+        
         for dict in self.all_dicts:
             if "_axis_comment" in dict:
                 axis_comment = dict['_axis_comment']
@@ -415,13 +415,10 @@ class BSSconfig:
 # print ttt.args[0]
 
 if __name__ == "__main__":
-    bssconf = BSSconfig('/isilon/blconfig/bl41xu/e2/bss/bss.config')
-    #bssconf.getThinnestAtt()
+    bssconf = BSSconfig('/isilon/blconfig/bl45xu/bss/bss.config')
     axis_name="st2_gonio_1_z"
-    #bssconf.getPulseInfo(axis_name)
-    e,a,b=bssconf.getEvacuateInfo("collimator")
+    e,a,b=bssconf.getEvacuateInfo("intensity monitor")
     print(e,a,b)
-    # print(bssconf.getBLobject())
 
     """
     try:

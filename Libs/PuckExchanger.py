@@ -1,12 +1,12 @@
 # coding: utf-8
-import Zoo
 import os
 import sys
+sys.path.append("../")
+import Zoo
 import datetime
 import pandas as pd
 import logging
 import logging.config
-
 
 class PuckExchanger():
     def __init__(self, zoo):

@@ -454,12 +454,12 @@ if __name__ == "__main__":
     dev = Device(s)
     dev.init()
 
-    dev.measureFlux()
+    # print(dev.measureFlux())
     # dev.intensity_monitor.off()
     # dev.intensity_monitor.on()
     # dev.att.setAttThick(0.0)
 
-    # dev.prepCapture()
+    dev.prepCentering()
     # dev.finishCapture()
 
     # en = dev.mono.getE()

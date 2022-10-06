@@ -18,10 +18,12 @@ class IntensityMonitor:
         self.bl_object = self.bssconf.getBLobject()
 
         self.s = server
-        self.axis_name = "st2_monitor_1_z"
-        self.mon_z = Motor(self.s, "bl_%s_%s"%(self.bl_object, self.axis_name),"pulse")
-        self.v2p_x, self.sense = self.bssconf.getPulseInfo(self.axis_name)
+        self.mon_z = Motor(self.s, "bl_%s_%s"%(self.bl_object, env.intensity_monitor_axis),"pulse")
+        print(self.mon_z)
+        # self.v2p_x, self.sense = self.bssconf.getPulseInfo(self.mon_z)
 
+        self.on_pulse=env.int_mon_on
+        self.off_pulse=env.int_mon_off
         self.isPrep = False
 
     def getEvacuate(self):
@@ -46,13 +48,17 @@ class IntensityMonitor:
         self.mon_z.move(target_pos)
 
     def on(self):
-        if self.isPrep == False: 
-            self.getEvacuate()
+        # Temp removed 2022/10/6 BL45XU K.Hirata
+        # if self.isPrep == False: 
+            # self.getEvacuate()
         self.mon_z.move(self.on_pulse)
 
     def off(self):
-        if self.isPrep == False: 
-            self.getEvacuate()
+        # Temp removed 2022/10/6 BL45XU K.Hirata
+        # if self.isPrep == False: 
+            # self.getEvacuate()
+        # if self.isPrep == False: 
+            # self.getEvacuate()
         self.mon_z.move(self.off_pulse)
 
     def goOn(self):
@@ -65,15 +71,15 @@ class IntensityMonitor:
         self.mon_z.nageppa(self.off_pos)
 
 if __name__ == "__main__":
-    host = '172.24.242.54'
+    host = '172.24.242.59'
     port = 10101
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))
 
     monitor = IntensityMonitor(s)
-    monitor.getPosition()
-    monitor.getEvacuate()
+    # monitor.getPosition()
+    # monitor.getEvacuate()
     monitor.on()
     monitor.off()
 

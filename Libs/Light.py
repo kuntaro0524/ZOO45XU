@@ -19,7 +19,7 @@ class Light:
         self.s = server
         self.axis_name = "st2_light_1_z"
         self.light_z = Motor(self.s, "bl_%s_%s"%(self.bl_object, self.axis_name),"pulse")
-        self.v2p_x, self.sense_x = self.bssconf.getPulseInfo(self.axis_name)
+        self.v2p, self.sense = self.bssconf.getPulseInfo(self.axis_name)
 
         self.isPrep = False
 
@@ -74,5 +74,6 @@ if __name__ == "__main__":
     #light.getEvacuate()
     light.on()
     light.off()
+    print(light.getPosition())
 
     s.close()
