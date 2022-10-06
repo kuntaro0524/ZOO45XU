@@ -7,11 +7,13 @@ import time
 from Received import *
 from Motor import *
 import BSSconfig
+import Env
 
 # information of collision between BM and Gonio
 class Light:
     def __init__(self, server):
-        self.bssconf = BSSconfig.BSSconfig('/isilon/blconfig/bl41xu/bss/bss.config')
+        env = Env.Env()
+        self.bssconf = BSSconfig.BSSconfig(env.bssconfig_path)
         self.bl_object = self.bssconf.getBLobject()
 
         self.s = server
@@ -63,16 +65,14 @@ class Light:
         self.light_z.nageppa(self.off_pos)
 
 if __name__ == "__main__":
-    host = '172.24.242.54'
-    port = 10101
+    env = Env.Env()
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((host, port))
+    s.connect((env.ms_address, env.ms_port))
 
     light = Light(s)
     #light.getEvacuate()
     light.on()
-
     light.off()
 
     s.close()

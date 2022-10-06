@@ -1,3 +1,4 @@
+# coding: utf-8
 import Zoo
 import os
 import sys
@@ -6,7 +7,6 @@ import pandas as pd
 import logging
 import logging.config
 
-# coding: utf-8
 
 class PuckExchanger():
     def __init__(self, zoo):
@@ -130,6 +130,9 @@ class PuckExchanger():
         # Read puck IDs in the dewar.
         pucks_in_space = self.zoo.getSampleInformation()
         scheduled_pucks = self.readPuckInfoFromCSV(csvfile)
+
+        # 'Not-mounted' is invalid puck ID.
+        scheduled_pucks.remove('Not-Mounted')
 
         print("Pucks in SPACE=", pucks_in_space)
         print("Scheduled pucks=", scheduled_pucks)
