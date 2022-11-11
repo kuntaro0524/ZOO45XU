@@ -183,8 +183,8 @@ if __name__ == "__main__":
     import Zoo
     zoo=Zoo.Zoo()
     zoo.connect()
-
     pe=PuckExchanger(zoo)
+
     #mount_list, unmount_list=pe.checkCurrentPucks(sys.argv[1])
     #print("  mountlist=", mount_list)
     #print("unmountlist=", unmount_list)
