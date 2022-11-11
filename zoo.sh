@@ -2,16 +2,13 @@
 
 if ($$ != `pgrep -fo $0`) then
     notify-send "`basename $0` is aleady running."
-    exit 1
+    #exit 1
 endif
 
-<<<<<<< HEAD
 videosrv &
 sleep 10
 yamtbx.python /isilon/BL45XU/videosrv0.py
 
-=======
->>>>>>> origin/puck_exchange
 # Cheetah
 /usr/local/bss/startcheetah.sh
 
