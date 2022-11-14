@@ -243,7 +243,7 @@ class Capture:
 
 if __name__ == "__main__":
     cap = Capture()
-    cappath = "/isilon/BL41XU/BLsoft/PPPP/10.Zoo/"
+    cappath = "/isilon/BL45XU/BLsoft/PPPP/10.Zoo/"
 
     print "START-connect from main"
     filename = os.path.join(cappath,"%s.ppm" % (sys.argv[1]))

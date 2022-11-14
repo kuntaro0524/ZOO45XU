@@ -170,11 +170,11 @@ class CoaxImage:
     # get_coax_center()
 
     def get_zoom(self):
-        recbuf = self.ms.recv(8000)
-        print "debug::", recbuf
         self.bssconf = BSSconfig.BSSconfig(env.bssconfig_path)
         self.bl_object = self.bssconf.getBLobject()
         self.ms.sendall("get/bl_%s_st2_coax_1_zoom/query"%self.bl_object)
+        recbuf = self.ms.recv(8000)
+        print("GET_ZOOM:",recbuf)
 
         sp = recbuf.split("/")
         if len(sp) == 5:

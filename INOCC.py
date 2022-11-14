@@ -628,8 +628,7 @@ if __name__ == "__main__":
     phi_face = 90
     
     start_time = datetime.datetime.now()
-    # backimg="/isilon/BL45XU/BLsoft/PPPP/10.Zoo/BackImages/back_210601.ppm"
-    backimg = "/isilon/BL45XU/BLsoft/PPPP/10.Zoo/back.ppm"
+    backimg = "/isilon/BL45XU/BLsoft/PPPP/10.Zoo/221114_back.ppm"
     
     inocc.setBack(backimg)
     # For each sample raster.png
