@@ -22,12 +22,12 @@ import matplotlib.pyplot as plt
 class INOCC:
     def __init__(self, ms, root_dir, sample_name="sample"):
         self.coi = CoaxImage.CoaxImage(ms)
-        self.fname = "/isilon/BL41XU/BLsoft/PPPP/10.Zoo/test.ppm"
+        self.fname = "/isilon/%s/BLsoft/PPPP/10.Zoo/test.ppm" % (env.beamline)
         self.isInit = False
         self.debug = True
-        self.logdir = "/isilon/BL41XU/BLsoft/PPPP/10.Zoo/Log/"
-        self.backimg = "/isilon/BL41XU/BLsoft/PPPP/10.Zoo/BackImages/back-1905171850.ppm"
-        self.bssconfig_file = "/isilon/blconfig/bl41xu/bss/bss.config"
+        self.logdir="/isilon/%s/BLsoft/PPPP/10.Zoo/Log/" % (env.beamline)
+        self.backimg = "/isilon/%s/BLsoft/PPPP/10.Zoo/BackImages/back-1905171850.ppm" % (env.beamline)
+        self.bssconfig_file = env.bssconfig_path
 
         # Directory for saving the INOCC result for each data
         self.sample_name = sample_name

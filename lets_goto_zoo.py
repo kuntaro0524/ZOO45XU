@@ -1,6 +1,5 @@
 import sys,math,numpy,os
 
-sys.path.append("./Libs")
 import Env
 env = Env.Env()
 sys.path.append(env.beamline_zoo_path)
@@ -17,14 +16,14 @@ import subprocess
 
 if __name__ == "__main__":
     ms = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    ms.connect(("172.24.242.54", 10101))
+    ms.connect(("172.24.242.59", 10101))
 
     # Logging setting
     d = Date.Date()
     time_str = d.getNowMyFormat(option="date")
-    logname = "/isilon/BL41XU/BLsoft/PPPP/10.Zoo/ZooLogs/zoo_%s.log" % time_str
+    logname = "/isilon/BL45XU/BLsoft/PPPP/10.Zoo/ZooLogs/zoo_%s.log" % time_str
     print "changing mode of %s" % logname
-    logging.config.fileConfig('/isilon/BL41XU/BLsoft/PPPP/10.Zoo/Libs/logging.conf', defaults={'logfile_name': logname})
+    logging.config.fileConfig('/isilon/BL45XU/BLsoft/PPPP/10.Zoo/Libs/logging.conf', defaults={'logfile_name': logname})
     logger = logging.getLogger('ZOO')
     os.chmod(logname, 0666)
 

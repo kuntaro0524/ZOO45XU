@@ -112,7 +112,7 @@ class ZooNavigator():
         self.meas_flux_list = []
         self.meas_wavelength_list = []
 
-        self.needMeasureFlux = True
+        self.needMeasureFlux = False
         self.pinphoto_channel = 3
 
         # If BSS can change beamsize via command
