@@ -214,9 +214,6 @@ class ZooNavigator():
         self.logger.info("Measuring photon flux....")
         self.phosec_meas = self.dev.measureFlux(self.pinphoto_channel)
         # Adding measured flux & beam size to the list
-        print("BEAM")
-        print(beamh, beamv)
-        print("BEAM")
         self.meas_beamh_list.append(beamh)
         self.meas_beamv_list.append(beamv)
         self.meas_wavelength_list.append(cond['wavelength'])
@@ -446,24 +443,17 @@ class ZooNavigator():
         # try: self.html_maker.add_condition(cond)
         # except: print traceback.format_exc()
 
-        # SSROX does not require measuring flux
-        # Changed 2020/06/02: dose estimation is also required for SSROX measurement
-        # if cond['mode'] == "ssrox":
-        #     self.needMeasureFlux = False
-
         if self.needMeasureFlux == True:
             self.logger.debug("ZooNavigator.measureFlux is called from main routin")
             self.measureFlux(cond)
             # Recording flux value to ZOODB
             self.esa.updateValueAt(o_index, "flux", self.phosec_meas)
-        elif self.helical_debug == True:
-            self.phosec_meas = 1E13  # 2019/05/24 K.Hirata
-
-        # 2019/04/21 Measuring flux should be skipped now
-        # Beamsize should be changed via BSS
         else:
             self.logger.info("Skipping measuring flux")
-            # self.measureFlux(cond)
+            beamsizeconf = BeamsizeConfig.BeamsizeConfig(self.config_dir)
+            self.phosec_meas = beamsizeconf.getFluxAtWavelength(cond['ds_hbeam'], cond['ds_vbeam'], cond['wavelength'])
+            self.zooprog.write("Flux value is read from beamsize.conf: %5.2e\n"% self.phosec_meas)
+            self.esa.updateValueAt(o_index, "flux", self.phosec_meas)
 
         # Experiment
         trayid = cond['puckid']
