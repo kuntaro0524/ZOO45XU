@@ -7,6 +7,7 @@ import datetime
 import pandas as pd
 import logging
 import logging.config
+from MyException import *
 
 class PuckExchanger():
     def __init__(self, zoo):
@@ -111,6 +112,16 @@ class PuckExchanger():
 
         return pucks_to_be_unmounted
 
+    def checkBeforeMeasure(self, csvfile):
+        scheduled_pucks = self.readPuckInfoFromCSV(csvfile)
+        sch_pucks = set(scheduled_pucks)
+        num_pucks = len(sch_pucks)
+        if num_pucks > 8:
+            raise MyException("# of pucks exceeds 8")
+        else:
+            return num_pucks
+        # print(sch_pucks)
+
     def groupPucksForNext(self, pucks_in_schedule, pucks_in_space):
         # python set　に変換
         pucks_in_schedule_set = set(pucks_in_schedule)
@@ -138,7 +149,6 @@ class PuckExchanger():
         # Read puck IDs in the dewar.
         pucks_in_space = self.zoo.getSampleInformation()
         scheduled_pucks = self.readPuckInfoFromCSV(csvfile)
-
 
         print("Pucks in SPACE=", pucks_in_space)
         print("Scheduled pucks=", scheduled_pucks)

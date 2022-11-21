@@ -34,6 +34,17 @@ if __name__ == "__main__":
     # Puck exchanger preparation
     pe = PuckExchanger.PuckExchanger(zoo)
 
+    # CSV puck number check
+    for input_file in sys.argv[1:]:
+        logger.info("Start processing %s" % input_file)
+        try:
+            num_pucks=pe.checkBeforeMeasure(input_file)
+            logger.info("%s will process %s pucks" %(input_file, num_pucks))
+        except MyException as ttt:
+            logger.warning("%s" % ttt.args[0])
+            # print("Exception: Number of pucks exceeds 8.")
+            sys.exit()
+
     total_pins = 0
     # Currently only CSV files
     for input_file in sys.argv[1:]:
