@@ -783,7 +783,7 @@ class LoopMeasurement:
         kuma = KUMA.KUMA()
         exp_time, best_transmission = kuma.getBestCondsMulti(cond, flux)
 
-        if beamline == "BL32XU" or beamline == "BL41XU" or beamline=="BL45XU":
+        if self.beamline == "BL32XU" or self.beamline == "BL41XU" or self.beamline=="BL45XU":
             # Check transmission with 'thinnest attenuator'
             attfac = AttFactor.AttFactor(self.bss_config)
             mod_exp, mod_trans = attfac.checkThinnestAtt(cond['wavelength'], exp_time, best_transmission)
@@ -845,7 +845,7 @@ class LoopMeasurement:
         kuma = KUMA.KUMA()
         exp_time, best_transmission = kuma.getBestCondsMulti(cond, flux)
 
-        if beamline == "BL32XU" or beamline == "BL41XU" or beamline == "BL45XU":
+        if self.beamline == "BL32XU" or self.beamline == "BL41XU" or self.beamline == "BL45XU":
             # Check transmission with 'thinnest attenuator'
             attfac = AttFactor.AttFactor(self.bss_config)
             mod_exp, mod_trans = attfac.checkThinnestAtt(cond['wavelength'], exp_time, best_transmission)
@@ -1236,7 +1236,7 @@ class LoopMeasurement:
         print("beamsize=",cond['ds_hbeam'],cond['ds_vbeam'])
         beamsize_index = self.beamsizeconf.getBeamIndexHV(cond['ds_hbeam'], cond['ds_vbeam'])
 
-        if beamline == "BL32XU" or beamline == "BL41XU" or beamline == "BL45XU":
+        if self.beamline == "BL32XU" or self.beamline == "BL41XU" or self.beamline == "BL45XU":
             # Check transmission with 'thinnest attenuator'
             attfac = AttFactor.AttFactor(self.bss_config)
             mod_exp, mod_trans = attfac.checkThinnestAtt(cond['wavelength'], exp_time, best_transmission)

@@ -432,7 +432,6 @@ class NOU():
                 self.logger.info("Helical data collection is swithced to the single irradiation mode")
                 # 一時的にこうしてみるけど、引数としてもらってきたほうが良いかもしれん　2022/04/12
                 phi_face = (osc_start + osc_end) / 2.0
-                self.doSingle(left_xyz, cond, phi_face, prefix)
                 # Swithed to single data collection : vector should be the center of left/right edges.
                 cen_x = (left_xyz[0]+right_xyz[0])/2.0
                 cen_y = (left_xyz[1]+right_xyz[1])/2.0
