@@ -57,12 +57,14 @@ class NOU():
         self.time_limit = limit_minutes
 
     def junbiSuru(self, scan_path, cond, prefix):
+        self.logger.info("Start!")
         ahm = AnaHeatmap.AnaHeatmap(scan_path)
         # Min & Max score value to pick up crystals
         self.min_score = cond['score_min']
         self.max_score = cond['score_max']
 
         # print min_score, max_score
+        self.logger.info("setting min/max scores")
         ahm.setMinMax(self.min_score, self.max_score)
 
         # output image: 'background' = black
@@ -95,7 +97,9 @@ class NOU():
 
     def sokuteiSuru(self, scan_path, cond, prefix):
         # Prepare 'data collection blocks'
+        self.logger.info(">> Junbisuru started")
         dc_blocks = self.junbiSuru(scan_path, cond, prefix)
+        self.logger.info(">> Junbisuru finished")
         # number of all data collection blocks to be collected
         n_dc_blocks = len(dc_blocks)
         self.logger.info(">> All of DC blocks: %5d" % n_dc_blocks)
