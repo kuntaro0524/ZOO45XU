@@ -6,7 +6,7 @@ import datetime
 import CrystalSpot
 
 class SummaryDat:
-    def __init__(self,summary_dat_path,cxyz,phi,nv,nh):
+    def __init__(self, summary_dat_path, nv, nh):
         self.path=summary_dat_path
         self.isRead=False
         self.isKind=False
@@ -14,8 +14,6 @@ class SummaryDat:
         self.isScoreAbove=False
         self.summary_file="%s/summary.dat"%self.path
         self.DEBUG=False
-        self.cen_xyz=cxyz # Goniometer coordinate of this scan
-        self.phi=phi
 
         # DEBUG option
         self.debug=False
@@ -29,6 +27,8 @@ class SummaryDat:
         # # of spots in the heatmap
         self.nv=nv
         self.nh=nh
+
+        self.timeout = 1800.0
 
     def setSummaryFile(self,filename):
         self.summary_file="%s/%s"%(self.path,filename)
