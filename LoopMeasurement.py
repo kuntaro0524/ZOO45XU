@@ -680,7 +680,7 @@ class LoopMeasurement:
     # max_ncry : max number of crystals for data collection
     # min_score : min spot number for picking up crystals
     # max_score : max spot number for picking up crystals
-
+    # This was obsoleted: commented on 14th Feb 2023 K.Hirata
     def prepSmallWedge(self, cxyz, phi, raster_path, scan_id, min_score=10, max_score=1000, crysize=0.10, max_ncry=50,
                        mode="grav"):
         def compCryScore(x, y):
