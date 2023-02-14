@@ -22,6 +22,8 @@ import ESA
 import KUMA
 import CrystalList
 import Date
+import DiffscanMaster
+
 from html_log_maker import ZooHtmlLog
 
 import logging
@@ -78,7 +80,7 @@ class ZooNavigator():
         # Checking data processing file
         self.isDPheader = False
 
-        # Goniometer positions 
+        # Goniometer positions
         # The values will be updated by the current pin position
         self.sx = -0.75
         self.sy = 8.500
@@ -106,7 +108,7 @@ class ZooNavigator():
         self.meas_flux_list = []
         self.meas_wavelength_list = []
 
-        self.needMeasureFlux = False  # test at 2019/06/18 at BL45XU
+        self.needMeasureFlux = True  # test at 2019/06/18 at BL45XU
 
         # If BSS can change beamsize via command
         self.doesBSSchangeBeamsize = True
@@ -115,7 +117,7 @@ class ZooNavigator():
         # For cleaning information
         self.num_pins = 0
         self.n_pins_for_cleaning = 16
-        self.cleaning_interval_hours = 1.0 #[hour]
+        self.cleaning_interval_hours = 0.75 #[hour]
         self.time_for_elongation = 0.0 #[sec]
 
         # Bukkake & capture
@@ -128,6 +130,8 @@ class ZooNavigator():
         self.isSpecialRasterStep = False
         self.beamsize_thresh_special_raster = 50.0
         self.special_raster_step = 25.0 # [um]
+        # Dark experiment
+        self.isDark = False
 
     def readZooDB(self, dbfile):
         self.esa = ESA.ESA(dbfile)
@@ -256,7 +260,12 @@ class ZooNavigator():
             if mean_value < 100:
                 self.logger.info("Background image seems to be bad with lower mean value than 100!")
                 continue
+            elif self.isDark == True and mean_value < 35:
+                self.logger.info("Dark experiments: mean value of the image is %5d" % mean_value)
+                self.logger.info("Background image seems to be bad with lower mean value than 50 in Dark!")
+                continue
             elif mean_value > mean_thresh:
+                self.logger.info("Mean value of the image is %5d" % mean_value)
                 self.logger.info("Background image seems to be bad with higher mean value than 200!")
                 continue
             else:
@@ -347,7 +356,7 @@ class ZooNavigator():
     def processLoop(self, cond, checkEnergyFlag=False, measFlux=False):
         # Root directory
         root_dir = cond['root_dir']
-        # priority index 
+        # priority index
         o_index = cond['o_index']
 
         # self.html_maker = ZooHtmlLog(root_dir, name, online=True)
@@ -649,7 +658,8 @@ class ZooNavigator():
         if beamline.upper() == "BL45XU":
             # LN2:ON -> ZoomCap:ON
             if cond['ln2_flag'] == 1:
-                self.dev.zoom.move(2000)
+                # self.dev.zoom.move(2000)
+                self.dev.zoom.move(3200) # by N.Mizuno @2021/03/30
                 capture_name = "loop_zoom.ppm"
                 self.lm.captureImage(capture_name)
                 # Bukkake
@@ -662,7 +672,8 @@ class ZooNavigator():
             # ZoomCap:ON only (withough LN2 bukkake)
             elif cond['zoomcap_flag'] == 1:
                 self.logger.info("Zoom capture will be conducted from now...")
-                self.dev.zoom.move(2000)
+                # self.dev.zoom.move(2000)
+                self.dev.zoom.move(3200) # by N.Mizuno @2021/03/30
                 capture_name = "loop_zoom.ppm"
                 self.lm.captureImage(capture_name)
                 self.dev.zoom.zoomOut()
@@ -764,7 +775,7 @@ class ZooNavigator():
             # getSortedCryList copied from HEBI.py
             # Size of crystals?
             cxyz = 0, 0, 0
-            ahm = AnaHeatmap.AnaHeatmap(raster_path, cxyz, sphi)
+            ahm = AnaHeatmap.AnaHeatmap(raster_path)
             min_score = cond['score_min']
             max_score = cond['score_max']
             ahm.setMinMax(min_score, max_score)
@@ -906,7 +917,7 @@ class ZooNavigator():
 
             # Analyze heatmap and get crystal list
             self.logger.info("SHIKA heatmap will be analyzed from now..")
-            ahm = AnaHeatmap.AnaHeatmap(raspath, self.center_xyz, sphi)
+            ahm = AnaHeatmap.AnaHeatmap(raspath)
             min_score = cond['score_min']
             max_score = cond['score_max']
             ahm.setMinMax(min_score, max_score)
@@ -987,7 +998,7 @@ class ZooNavigator():
                     # Final analysis for vertical scan
                     # Analyze heatmap and get crystal list
                     self.logger.info("Analyzing the vertical scan...")
-                    ahm = AnaHeatmap.AnaHeatmap(raspath, mod_xyz, phi_lv)
+                    ahm = AnaHeatmap.AnaHeatmap(raspath)
                     # Minimum score is set to 3
                     min_score = 5
                     max_score = cond['score_max']
@@ -1037,6 +1048,7 @@ class ZooNavigator():
         data_prefix = "%s-%02d-single" % (trayid, pinid)
 
         # Dose to limit exposure time
+        self.logger.info("KUMA will be called from now!!")
         kuma = KUMA.KUMA()
 
         # Photon flux is extracted from beamsize.config
@@ -1044,6 +1056,7 @@ class ZooNavigator():
             beamsizeconf = BeamsizeConfig.BeamsizeConfig(self.config_dir)
             flux = beamsizeconf.getFluxAtWavelength(cond['ds_hbeam'], cond['ds_vbeam'], cond['wavelength'])
             self.logger.info("Flux value is read from beamsize.conf: %5.2e."% flux)
+            #self.logger.info()
         else:
             flux = self.phosec_meas
             self.logger.info("Single: Beam size = %5.2f %5.2f um Measured flux : %5.2e" % (cond['ds_hbeam'], cond['ds_vbeam'], flux))
@@ -1086,7 +1099,7 @@ class ZooNavigator():
         print "Liar: beam size should be changed by BSS"
         # self.bsc.changeBeamsizeHV(cond['raster_hbeam'],cond['raster_vbeam'])
 
-        # Initial 2D scan 
+        # Initial 2D scan
         scan_id = "2d"
         gxyz = self.sx, self.sy, self.sz
         # Scan step is set to the same to the beam size
@@ -1156,11 +1169,10 @@ class ZooNavigator():
         o_index = cond['o_index']
         # Beamsize
         print "now moving to the beam size to raster scan..."
-        # Specific code for BL41XU and obsoleted temporally on 2019/06/03
-        #self.bsc.changeBeamsizeHV(cond['raster_hbeam'], cond['raster_vbeam'])
 
-        # Initial 2D scan 
+        # Initial 2D scan
         scan_id = "2d"
+        # is this required? 2021/06/02 K.Hirata
         gxyz = self.sx, self.sy, self.sz
 
         # Scan step is set to the same to the beam size
@@ -1186,93 +1198,26 @@ class ZooNavigator():
         self.esa.addEventTimeAt(o_index, "raster_end")
 
         # HITO instance
-        # __init__(self,zoo,lm,cxyz_2d,phi_face,hbeam,vbeam):
-        hito = HITO.HITO(self.zoo, self.lm, gxyz, sphi, cond['raster_hbeam'], cond['raster_vbeam'])
-        hito.setHelicalCrystalSize(cond['hel_min_size'], cond['hel_max_size'])
-        # hebi = HEBI.HEBI(self.zoo, self.lm, gxyz, sphi, cond['wavelength'], numCry=cond['maxhits'],
-        #                  scan_dist=cond['dist_raster'])
-        hebi = HEBI.HEBI(self.zoo, self.lm, self.stopwatch, self.phosec_meas)
+        hito = DiffscanMaster.NOU(self.zoo, self.lm, sphi, self.phosec_meas)
+        # Set the time limit for data collection from a pin.
+        hito.setTimeLimit(15.0)
+        try:
+            n_datasets = hito.sokuteiSuru(raspath, cond, prefix)
+            self.esa.incrementInt(o_index, "isDS")
+            self.esa.updateValueAt(o_index, "isDone", 1)
+        except Exception as e:
+            self.logger.info(e.args[0])
+            self.esa.addEventTimeAt(o_index, "ds_end")
 
-        hebi.setTrans(cond['hebi_att'])
+        # Wrong information but update the zoo.db
+        self.esa.updateValueAt(o_index, "nds_multi", n_datasets)
+        self.esa.updateValueAt(o_index, "nds_helical", n_datasets)
 
-        # What does this mean???? 2018/04/14 K.Hirata
-        # Distance for searching near grids in the heat map of 2D raster scan
-        # Raster beam size should be noted here 2018/04/14 K.Hirata
-        # This should be largely modified 
-        if cond['raster_hbeam'] > cond['raster_hbeam']:
-            crysize = (cond['raster_hbeam'] + 1.000) / 1000.0  # [mm]
-        else:
-            crysize = (cond['raster_vbeam'] + 1.000) / 1000.0  # [mm]
-        print "Crystal size is set to %8.2f[mm]" % crysize
-
-        raster_path = "%s/%s/scan/%s/" % (cond['root_dir'], prefix, scan_id)
-
-        single_crys, heli_crys, perfect_crys = hito.shiwakeru(raspath, scan_id, min_score=cond['score_min'],
-                                                              max_score=cond['score_max'], crysize=crysize,
-                                                              max_ncry=cond['maxhits'])
-
-        print "MULTIPLE SMALL WEDGE =", len(single_crys)
-        print "HELICAL              =", len(heli_crys)
-        print "PERFECT HELICAL      =", len(perfect_crys)
-
-        # Multi data collection
-        # Precise centering
-        # Making gonio list
-        glist = []
-        for cry in single_crys:
-            cry.setDiffscanLog(raspath)
-            gxyz = cry.getPeakCode()
-            gx, gy, gz = gxyz
-            glist.append((gx, gy, gz))
-
-        data_prefix = "%s-%02d-multi" % (trayid, pinid)
-        # Exposure time limit from the dose and photon flux and energy
-        print "Beam size = ", cond['ds_hbeam'], cond['ds_vbeam'], " [um]"
-        print "Photon flux=%8.3e" % flux
-        exp_limit = kuma.convDoseToExptimeLimit(cond['dose_ds'], cond['ds_vbeam'], cond['ds_hbeam'], flux,
-                                                cond['wavelength'])
-
-        multi_sch = self.lm.genMultiSchedule(sphi, glist, cond, self.phosec_meas, prefix=data_prefix)
-
-        time.sleep(0.1)
-
-        self.esa.addEventTimeAt(o_index, "ds_start")
-        self.zoo.doDataCollection(multi_sch)
-        self.zoo.waitTillReady()
-
-        # hbeam_um, vbeam_um : helical beam size
-        # phosec: photon flux of this beam size
-        # exptime: exposure time for each frame
-        # distance: camera distance
-        # Dose to photon density limit
-        kuma = KUMA.KUMA()
-        photon_density_limit = kuma.convDoseToDensityLimit(cond['dose_ds'], cond['wavelength'])
-        self.logger.info("Dose limit  = %3.1f[MGy]\n" % cond['dose_ds'])
-        self.logger.info("Photonlimit = %6.1e[phs/um^2]\n" % photon_density_limit)
-
-        # This is the most important limit definition for helical data collections
-        hebi.setPhotonDensityLimit(photon_density_limit)
-
-        # Processing all found crystals for helical data collections
-        # For 'good' crystals
-        hebi.roughEdgeHelical(heli_crys, raspath, cond['ds_hbeam'], cond['ds_vbeam'],
-                              self.phosec_meas, cond['exp_ds'], cond['dist_ds'], cond['hel_part_osc'],
-                              cond['osc_width'],
-                              self.zooprog, cond['ntimes'], cond['reduced_fac'], ds_index=0)
-
-        # For 'perfect' crystals
-        # Name for scan should be changed for avoiding overwriting the scan files
-        hebi.roughEdgeHelical(heli_crys, raspath, cond['ds_hbeam'], cond['ds_vbeam'],
-                              self.phosec_meas, cond['exp_ds'], cond['dist_ds'], cond['hel_full_osc'],
-                              cond['osc_width'],
-                              self.zooprog, cond['ntimes'], cond['reduced_fac'], ds_index=1)
-
+        # Ending procedure of 'mixed' mode.
         self.lm.closeCapture()
 
         # Log file for time stamp
-        self.esa.incrementInt(o_index, "isDS")
         self.esa.addEventTimeAt(o_index, "ds_end")
-
         self.logger.info("mixed end")
 
     # 2020/06/02 Major revision in order to activate this function for BL45XU.
@@ -1342,7 +1287,7 @@ class ZooNavigator():
             # getSortedCryList copied from HEBI.py
             # Size of crystals?
             cxyz = 0, 0, 0
-            ahm = AnaHeatmap.AnaHeatmap(raster_path, cxyz, sphi)
+            ahm = AnaHeatmap.AnaHeatmap(raster_path)
             min_score = cond['score_min']
             max_score = cond['score_max']
             ahm.setMinMax(min_score, max_score)
