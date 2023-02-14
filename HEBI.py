@@ -52,7 +52,7 @@ class HEBI():
     def getSortedCryList(self, scan_path, scan_prefix, phi_center, isWeakScan=False):
         self.logger.debug("HEBI.getSortedCryList starts")
         cxyz = 0, 0, 0
-        ahm = AnaHeatmap.AnaHeatmap(scan_path, cxyz, phi_center)
+        ahm = AnaHeatmap.AnaHeatmap(scan_path)
         if isWeakScan == False:
             self.logger.info("Minimum score = %s" % self.min_score)
             self.logger.info("Maximum score = %s" % self.max_score)
@@ -235,9 +235,10 @@ class HEBI():
                 self.logger.info("Helical data collection is swithced to the single irradiation mode")
                 self.doSingle(left_xyz, cond, phi_face, prefix)
             else:
-                print "Generate helical schedule file"
+                self.logger.info("Generate helical schedule file")
                 helical_sch = self.lm.genHelical(start_phi, end_phi, left_xyz, right_xyz, prefix, self.phosec_meas, cond)
-                print "run the schedule file by BSS"
+
+                self.logger.info("Schedule file has been prepared with LM.genHelical")
                 self.zoo.doDataCollection(helical_sch)
                 self.zoo.waitTillReady()
         except Exception as e:
@@ -247,7 +248,7 @@ class HEBI():
         # When the data collection finished.
         # self.sw.setTime("end")
         # consumed_time=self.sw.getDsecBtw("start","end")
-        # self.logger.info("Consuming time for this crystal %5.1f[sec]\n"%(consumed_time))
+        # self.logfile.write("Consuming time for this crystal %5.1f[sec]\n"%(consumed_time))
 
     # Crystal edge: Left/Right vertical scan to define crystal position in 3D
     def edgeCentering(self, cond, phi_face, rough_xyz, LorR = "Left", cry_index=0):
@@ -312,7 +313,7 @@ class HEBI():
             self.logger.info("No crystals were found\n")
             return 0
 
-        print "Max hits analysis..."
+        self.logger.info("Max hits analysis...")
         # the number of crystals
         n_max = cond['maxhits']
         self.logger.info("# of Max crystals: %05d\n" % n_max)
@@ -417,6 +418,7 @@ class HEBI():
                     self.logger.write("Next crystal...")
                     continue
 
+                self.logger.info("Left and right edges are normally terminated.")
                 self.helical_cry_size = numpy.fabs(left_xyz[1] - right_xyz[1]) * 1000.0 # [um]
 
                 # generate helical schedule file
