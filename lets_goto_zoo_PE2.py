@@ -52,6 +52,7 @@ if __name__ == "__main__":
             pe.checkCurrentPucksAndMount(input_file)
             navi = ZooNavigator.ZooNavigator(zoo, ms, input_file, is_renew_db=True)
             navi.setTimeLimit(time_hour)
+            print("TimeLimit=%s"%time_hour)
             n_pins = navi.goAround()
         elif input_file.rfind("db") != -1:
             print("Currently, DB restart function is not available. Wait for the next release!")

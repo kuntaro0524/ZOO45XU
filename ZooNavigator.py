@@ -15,7 +15,7 @@ import BeamsizeConfig
 import datetime
 import StopWatch
 import Device
-import HEBI, HITO
+import HEBI
 import DumpRecover
 import AnaHeatmap
 import ESA
