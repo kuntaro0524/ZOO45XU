@@ -14,29 +14,29 @@ class PuckConfig():
         self.df.head()
 
         def reprep(row_data):
-            print(row_data)
-            if row_data.rfind("h")!=-1:
-                value=float(row_data.replace("h",""))
-                print(value)
-            elif row_data.rfind("H")!=-1:
-                value=float(row_data.replace("h",""))
-                print(value)
-            elif row_data.rfind("s")!=-1:
-                value=float(row_data.replace("s",""))
-                print(value)
-            elif row_data.rfind("S")!=-1:
-                value=float(row_data.replace("S",""))
-                print(value)
-            elif row_data.rfind("m")!=-1 or row_data.rfind("M")!=-1:
-                print("minutes!")
-            return 1.0
+            lowstr=row_data.lower()
+            if lowstr.rfind("h")!=-1:
+                value=float(lowstr.replace("h",""))
+                return(value)
+            elif lowstr.rfind("s")!=-1:
+                value=float(lowstr.replace("s",""))
+                return(value*8.0)
+            elif lowstr.rfind("m")!=-1:
+                value=float(lowstr.replace("m",""))
+                return(value/60.0)
 
         # Condition 
-        self.df['result'] = self.df['time'].apply(reprep)
-        print(self.df['result'])
+        self.df['time_limit_hour'] = self.df['time_limit'].apply(reprep)
+
+        # Dataframe to Dictionary
+        self.puck_dict = self.df.to_dict(orient='records')
         # Remove space from the line string
         self.isRead=True
+        return self.puck_dict
     
 if __name__ == "__main__":
     pc=PuckConfig(sys.argv[1])
-    pc.readConfig()
+    pi=pc.readConfig()
+    print(pi)
+    for pi in pi:
+        print(pi)
