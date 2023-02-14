@@ -10,7 +10,7 @@ class KUMA:
         # Around 10 MGy
         self.limit_dens = 1E10  # phs/um^2 this is for 1A wavelength
         # Kuntaro Log file
-        self.logger = logging.getLogger('ZOO')
+        self.logger = logging.getLogger('ZOO').getChild("KUMA")
 
         self.debug = True
 
@@ -74,10 +74,10 @@ class KUMA:
         if mod_transmission >= 1.0:
             exp_time = exptime_limit / float(n_frames)
             mod_transmission = 1.0
-            self.logger.info("Exposure time was replaced by %8.3f sec\n" % exp_time)
-            self.logger.info("Measurement time will be longer than the initial condition\n")
-            self.logger.info("Initial data collection time: %8.2f [sec]\n" % (exp_orig * float(n_frames)))
-            self.logger.info("Current data collection time: %8.2f [sec]\n" % (exp_time * float(n_frames)))
+            self.logger.info("Exposure time was replaced by %8.3f sec" % exp_time)
+            self.logger.info("Measurement time will be longer than the initial condition")
+            self.logger.info("Initial data collection time: %8.2f [sec]" % (exp_orig * float(n_frames)))
+            self.logger.info("Current data collection time: %8.2f [sec]" % (exp_time * float(n_frames)))
         # Attenuator is required
         else:
             exp_time = exp_orig
@@ -96,11 +96,11 @@ class KUMA:
         best_transmission = self.estimateAttFactor(cond['exp_ds'], cond['total_osc'],
                                                    cond['osc_width'], dist_vec_um, flux, cond['ds_vbeam'])
         # Dose slicing is considered
-        self.logger.info("KUMA: Best attenuation factor=%8.5f\n" % best_transmission)
-        self.logger.info("Reduced factor for dose slicing: %8.5f\n" % cond['reduced_fact'])
-        self.logger.info("The number of datasets to be collected: %5d\n" % cond['ntimes'])
+        self.logger.info("KUMA: Best attenuation factor=%8.5f" % best_transmission)
+        self.logger.info("Reduced factor for dose slicing: %8.5f" % cond['reduced_fact'])
+        self.logger.info("The number of datasets to be collected: %5d" % cond['ntimes'])
         mod_transmission = cond['reduced_fact'] * best_transmission
-        self.logger.info("modified transmission for dose slicing %9.2f\n" % mod_transmission)
+        self.logger.info("modified transmission for dose slicing %9.5f" % mod_transmission)
 
         # Attenuator is not required
         exp_orig = cond['exp_ds']
@@ -109,14 +109,14 @@ class KUMA:
         if mod_transmission >= 1.0:
             exp_time = exp_orig * mod_transmission
             mod_transmission = 1.0
-            print "Exposure time was replaced by %8.3f sec" % exp_time
+            print "Exposure time was replaced by %8.4f sec" % exp_time
             print "Measurement time will be longer than the initial condition"
             print "Initial data collection time: %8.2f [sec]" % (exp_orig * float(n_frames))
             print "Current data collection time: %8.2f [sec]" % (exp_time * float(n_frames))
         # Attenuator is required
         else:
             exp_time = exp_orig
-            self.logger.info("Exposure time is input value: %8.2f [sec]\n" % exp_orig)
+            self.logger.info("Exposure time is input value: %8.2f [sec]" % exp_orig)
 
         return exp_time, mod_transmission
 
