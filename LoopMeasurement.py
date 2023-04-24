@@ -112,13 +112,13 @@ class LoopMeasurement:
         if os.path.exists(dirname) == False:
             os.mkdir(dirname)
 
-    # 2015/12/11 K.Hirata 
+    # 2015/12/11 K.Hirata
     # Tests for one action to make directory tree
     def prepPath(self, pathname):
         if os.path.exists(pathname) == False:
             os.makedirs(pathname)
 
-    # 2018/04/13 'n_mount' parameter was added 
+    # 2018/04/13 'n_mount' parameter was added
     # 2019/05/19 K. Hirata
     def prepDataCollection(self):
         self.logger.info("prepDataCollection started.")
@@ -203,7 +203,7 @@ class LoopMeasurement:
             return False
 
     # 2015/11/21 Exposure time can be set
-    # To be obsoleted 2015/12/11 
+    # To be obsoleted 2015/12/11
     # New one is raster2D
     def prepRaster(self, dist=300.0, att_idx=10, exptime=0.02, crystal_id="unknown"):
         rss = RasterSchedule.RasterSchedule()
@@ -508,7 +508,7 @@ class LoopMeasurement:
     # 2015/12/11 Precise setting for centering raster
     # More easy to be read by K.Hirata
     # scan_id: character buffer for making 'directory'
-    # beam_h, beam_v : raster beamsize 
+    # beam_h, beam_v : raster beamsize
     def prepVrasterIn(self, scan_id, beam_h, beam_v, range_mm, step_mm, gxyz, phi, att_idx=10, distance=300.0,
                       exptime=0.02):
         print "DEBUG"
@@ -558,7 +558,7 @@ class LoopMeasurement:
 
     # 2015/12/05 Precise setting for centering raster
     # scan_id: character buffer for making 'directory'
-    # beam_h, beam_v : raster beamsize 
+    # beam_h, beam_v : raster beamsize
     def prepVraster(self, scan_id, beam_h, beam_v, range_mm, step_mm, gxyz, phi, att_idx=10, distance=300.0,
                     exptime=0.02):
         rss = RasterSchedule.RasterSchedule()
@@ -598,10 +598,10 @@ class LoopMeasurement:
         return this_schedule
 
     # 2015/12/15 K.Hirata coded
-    # Notebook p.?? around 
+    # Notebook p.?? around
     # Target: SHIKA _selected.dat
     # thresh_nspots = threshold to select 'existing crystal'
-    # Mode : "grav" = gravity center (2 or more 
+    # Mode : "grav" = gravity center (2 or more
     def shikaEdges(self, raster_path, scan_id, thresh_nspots=30, margin=0.005):
         # SHIKA results
         sshika = SummarySHIKA.SummarySHIKA(raster_path, scan_id)
@@ -752,7 +752,7 @@ class LoopMeasurement:
 
     # 2019/05/21 test coding
     # Recover original one (upper as _old)
-    # 2019/05/22 Largely modified to use KUMA as external function to estimate 
+    # 2019/05/22 Largely modified to use KUMA as external function to estimate
     # exposure condition.
     # 2019/12/11 'same_point' option should be set to 'True' if dose slicing experiments are done
     # at the same crystal repeatedly. Schedule file for each crystal will be made.
@@ -883,7 +883,7 @@ class LoopMeasurement:
     # Important parameters: rot_speed, total_photons, flux_beam, exp_time
     # rot_speed [deg./sec.]
     # total_photons [phs] : total photons for data collection
-    # flux_beam [phs/sec.]: photon flux 
+    # flux_beam [phs/sec.]: photon flux
     def calcExpConds1(self, wavelength, start_phi, end_phi, osc_width, rot_speed, total_photons, flux_beam):
         attfac = AttFactor.AttFactor()
         # total oscillation range
@@ -933,7 +933,7 @@ class LoopMeasurement:
     # Important parameters: rot_speed, total_photons, flux_beam, exp_time
     # rot_speed [deg./sec.]
     # total_photons [phs] : total photons for data collection
-    # flux_beam [phs/sec.]: photon flux 
+    # flux_beam [phs/sec.]: photon flux
     def calcExpConds2(self, wavelength, start_phi, end_phi, osc_width, rot_speed, total_photons, flux_beam):
         attfac = AttFactor.AttFactor()
         # total oscillation range
@@ -1026,7 +1026,7 @@ class LoopMeasurement:
 
         # total oscillation range
         total_osc = end_phi - start_phi
-        # Caclculate exposure condition 
+        # Caclculate exposure condition
         # 2016/12/09 added the function: calcExpConds2
         # exposure time is estimated from rotation speed.
         att_idx, real_exptime = self.calcExpConds2(wavelength, start_phi, end_phi, osc_width, rot_speed, total_photons,
@@ -1087,7 +1087,7 @@ class LoopMeasurement:
 
         # rotation speed [deg./s]
         exp_time = osc_width / rot_speed
-        # EIGER readout time 
+        # EIGER readout time
         if 1.0 / exp_time > self.max_framerate:
             print "genRotSpeed. Frame rate exceeds the maximum frame rate!!"
             sys.exit(1)
