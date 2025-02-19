@@ -24,4 +24,5 @@ if __name__ == "__main__":
                 print "NG,",puckid,pinid 
                 n_ng += 1
 
+    zoo.disconnect()
 print "NG number = ", n_ng

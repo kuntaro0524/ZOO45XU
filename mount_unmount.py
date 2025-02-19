@@ -12,8 +12,8 @@ if __name__ == "__main__":
 	zoo.connect()
 	zoo.getSampleInformation()
 
-	for trayid in ["YUK0001","YUK0003","YUK0004"]:
-		for pinid in [1,2]:
+	for trayid in ["SP81046"]:
+		for pinid in [8,9,10,11,12,13,14,15,16]:
 			try:
 				zoo.mountSample(trayid,pinid)
 				zoo.waitTillReady()

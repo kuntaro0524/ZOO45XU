@@ -43,7 +43,7 @@ class MultiCrystal:
         self.isReadBeamSize = False
         self.isShutterless = False
         if beamline == "BL45XU":
-            self.data_suffix = "cbf"
+            self.data_suffix = "h5"
 
         if beamline == "BL41XU" or beamline == "BL32XU":
             self.data_suffix = "h5"

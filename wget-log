@@ -1,0 +1,10 @@
+--2023-02-04 10:35:35--  http://192.168.231.7:8080/start/10104/10104
+Connecting to 192.168.231.7:8080... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/plain]
+Saving to: ‘STDOUT’
+
+     0K                                                         160 =1.1s
+
+2023-02-04 10:35:36 (160 B/s) - written to stdout [169]
+

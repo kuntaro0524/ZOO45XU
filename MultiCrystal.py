@@ -47,7 +47,8 @@ class MultiCrystal:
         if beamline == "BL32XU" or "BL41XU":
             self.data_suffix = "h5"
         if beamline == "BL45XU":
-            self.data_suffix = "cbf"
+            self.data_suffix = "h5"
+        self.trans = None
 
         # Is this valid only for BL32XU? K.Hirata 190412
         self.oscillation_delay = 100 #msec
@@ -209,7 +210,9 @@ class MultiCrystal:
         ofile.write("Anomalous Nuclei: Mn  # Mn-K\n")
         ofile.write("XAFS Mode: 0  # 0:Final  1:Fine  2:Coarse  3:Manual\n")
         # 2020/10/30 Seamless transmission of BSS
-        if beamline == "BL32XU" or beamline=="BL41XU" or beamline=="BL45XU":
+        if self.trans is None:
+            schstr.append("Attenuator: %5d\n" % self.att_index)
+        elif beamline == "BL32XU" or beamline=="BL41XU" or beamline=="BL45XU":
             ofile.write("Attenuator transmission: %9.7f\n" % self.trans)
         else:
             ofile.write("Attenuator: %5d\n" % self.att_index)
@@ -346,7 +349,9 @@ class MultiCrystal:
         schstr.append("Anomalous Nuclei: Mn  # Mn-K\n")
         schstr.append("XAFS Mode: 0  # 0:Final  1:Fine  2:Coarse  3:Manual\n")
         # 2020/10/30 Seamless transmission of BSS
-        if beamline == "BL32XU" or beamline=="BL41XU" or beamline=="BL45XU":
+        if self.trans is None:
+            schstr.append("Attenuator: %5d\n" % self.att_index)
+        elif beamline == "BL32XU" or beamline=="BL41XU" or beamline=="BL45XU":
             schstr.append("Attenuator transmission: %9.7f\n" % self.trans)
         else:
             schstr.append("Attenuator: %5d\n" % self.att_index)
