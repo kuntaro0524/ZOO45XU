@@ -10,5 +10,5 @@ if __name__ == "__main__":
     zoo.getSampleInformation()
     time.sleep(2.0)
     zoo.cleaning()
-    zoo.waitTillReady()
+    zoo.waitSPACE()
     zoo.disconnect()

@@ -2,13 +2,10 @@ import os
 import sys
 from MyException import *
 
-class ConfigFile:
-    def __init__(self, beamline_name):
-        self.beamline = beamline_name.lower()
-        self.confdir = self.beamline.upper()
-        self.ourconf = "/isilon/%s/BLsoft/PPPP/%s.conf" % (self.confdir, self.beamline)
 
-        print self.beamline, self.ourconf
+class ConfigFile:
+    def __init__(self):
+        self.ourconf = "/isilon/BL32XU/BLsoft/PPPP/bl32xu.conf"
         self.isReady = False
 
     def readFile(self):
@@ -24,7 +21,7 @@ class ConfigFile:
             if x.find("fed"):
                 defend += 1
         if defstart != defend:
-            print " 'def' and 'fed' statement must be same!\n"
+            print(" 'def' and 'fed' statement must be same!\n")
             sys.exit(1)
         return 1
 
@@ -34,13 +31,11 @@ class ConfigFile:
 
         return tmpdic
 
-
     def prep(self):
         self.readFile()
         self.checkConfig()
         self.storeBlock()
         self.isReady = True
-
 
     def storeBlock(self):
         self.block = {}
@@ -67,7 +62,6 @@ class ConfigFile:
                 # print header
                 self.block.update({header: tmpblock})
 
-
     # print self.block
     # print len(self.block)
 
@@ -80,7 +74,6 @@ class ConfigFile:
             return float(self.block[key])
         else:
             raise MyException("getCondition:No such a key!\n")
-
 
     def getCondition2(self, key1, key2):
         if self.isReady != True:
@@ -97,14 +90,14 @@ class ConfigFile:
 
 if __name__ == "__main__":
 
-    conf = ConfigFile("bl45xu")
+    conf = ConfigFile()
     # print conf.getCondition("TCS_SCAN")
     # print conf.getCondition2("TCS_SCAN","vstart")
     # print conf.getCondition2("TCS_SCAN","vend")
     # print conf.getCondition(sys.argv[1])
 
     try:
-        tmp = conf.getCondition2("DTSCAN_NORMAL", sys.argv[2])
-        print tmp
-    except MyException, ttt:
-        print ttt.args[0]
+        tmp = conf.getCondition2(sys.argv[1], sys.argv[2])
+        print(tmp)
+    except MyException as ttt:
+        print(ttt.args[0])

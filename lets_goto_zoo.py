@@ -1,50 +1,106 @@
 import sys,math,numpy,os
-sys.path.append("/isilon/BL45XU/BLsoft/PPPP/10.Zoo/")
-sys.path.append("/isilon/BL45XU/BLsoft/PPPP/10.Zoo/Libs/")
+from configparser import ConfigParser, ExtendedInterpolation
+
+# Get information from beamline.ini file.
+config = ConfigParser(interpolation=ExtendedInterpolation())
+config_path = "%s/beamline.ini" % os.environ['ZOOCONFIGPATH']
+print(config_path)
+config.read(config_path)
+
+zoologdir = config.get("dirs", "zoologdir")
+beamline = config.get("beamline", "beamline")
+blanc_address = config.get("server", "blanc_address")
+logging_conf = config.get("files", "logging_conf")
+
 import Zoo
 import datetime
 import ZooNavigator
 from MyException import *
 import socket
-import Date
+import MyDate
 import logging
 import logging.config
 import subprocess
+import BLFactory
+
+import logging.config
 
 if __name__ == "__main__":
     ms = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    ms.connect(("172.24.242.59", 10101))
+    print("connecting %s" % blanc_address)
+    ms.connect((blanc_address, 10101))
+    print("Success")
 
     # Logging setting
-    d = Date.Date()
+    d = MyDate.MyDate()
     time_str = d.getNowMyFormat(option="date")
-    logname = "/isilon/BL45XU/BLsoft/PPPP/10.Zoo/ZooLogs/zoo_%s.log" % time_str
-    print "changing mode of %s" % logname
-    logging.config.fileConfig('/isilon/BL45XU/BLsoft/PPPP/10.Zoo/Libs/logging.conf', defaults={'logfile_name': logname})
-    logger = logging.getLogger('ZOO')
-    os.chmod(logname, 0666)
+    logname = "%s/zoo_%s.log" % (zoologdir, time_str)
+    print("changing mode of %s" % logname)
 
-    zoo=Zoo.Zoo()
-    zoo.connect()
+    logging_config = {
+    "version": 1,
+    "formatters": {
+        "f1": {
+            "format": "%(asctime)s - %(module)s - %(levelname)s - %(funcName)s - %(lineno)d - %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        }
+    },
+    "handlers": {
+        "consoleHandler": {
+            "class": "logging.StreamHandler",
+            "level": "DEBUG",
+            "formatter": "f1",
+            "stream": "ext://sys.stdout",
+        },
+        "fileHandler": {
+            "class": "logging.FileHandler",
+            "level": "DEBUG",
+            "formatter": "f1",
+            "filename": logname,  # 動的に設定
+        },
+    },
+    "loggers": {
+        "": {
+            "level": "DEBUG",
+            "handlers": ["consoleHandler", "fileHandler"],
+        }
+    },
+    }
+
+    logging.config.dictConfig(logging_config)
+    logger = logging.getLogger("Zoo")
+    logger.info("Start ZOO")
+
+    # Initialize BLFactory
+    blf = BLFactory.BLFactory()
+    blf.initDevice()
+
+    # BL44XU specific
+    if beamline == "BL44XU":
+        blf.zoo.setBeamsize(1)
 
     total_pins = 0
     for input_file in sys.argv[1:]:
         logger.info("Start processing %s" % input_file)
         if input_file.rfind("csv") != -1:
-            navi = ZooNavigator.ZooNavigator(zoo, ms, input_file, is_renew_db=True)
-            n_pins = navi.goAround()
+            navi = ZooNavigator.ZooNavigator(blf, input_file, is_renew_db=True)
+            # it is possible that a current beamsize is 'undefined' in beamsize.config for ZOO
+            # blf.zoo.setBeamsize(1)
+            num_pins = navi.goAround()
         elif input_file.rfind("db") != -1:
             esa_csv = "dummy.csv"
-            navi=ZooNavigator.ZooNavigator(zoo,ms,esa_csv,is_renew_db=False)
-            n_pins = navi.goAround(input_file)
-        total_pins += n_pins
+            navi=ZooNavigator.ZooNavigator(blf, esa_csv, is_renew_db=False)
+            # it is possible that a current beamsize is 'undefined' in beamsize.config for ZOO
+            blf.zoo.setBeamsize(1)
+            num_pins = navi.goAround(input_file)
+        total_pins += num_pins
 
     if total_pins == 0:
         logger.info("ZOO did not process any pins")
     else:
         logger.info("Start cleaning after the measurements")
-        zoo.dismountCurrentPin()
-        zoo.cleaning()
+        blf.zoo.dismountCurrentPin()
+        # zoo.cleaning()
 
-    zoo.disconnect()
+    blf.zoo.disconnect()
     ms.close()

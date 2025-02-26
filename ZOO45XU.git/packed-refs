@@ -1,0 +1,7 @@
+# pack-refs with: peeled fully-peeled sorted 
+37b440628f9611d405fd9a375bd90932ab8a4beb refs/heads/main
+60a66bd39b0f600066ed3bd02888151abaf5f3fa refs/heads/master
+50c2c11a16a517d4cfb0afa7bee60bc83dea1820 refs/heads/puck_exchange
+f31ef578cabf4ecd984c7699f6a25f339ff44364 refs/heads/puck_exchange_save
+d932ecfd1a1b8b0172dc7c4e001412c6f85cfe35 refs/heads/remodel
+1095596b15d4a530c91d02e26263494792c31c59 refs/heads/remodel-bl41xu

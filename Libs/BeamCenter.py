@@ -3,7 +3,6 @@ import datetime
 from MyException import *
 from PIL import Image
 from PIL import ImageDraw,ImageFont
-from myfont import fontPath
 
 class BeamCenter:
 	def __init__(self,filename):
@@ -20,8 +19,8 @@ class BeamCenter:
 			for y in range(0,im.size[1]):
 				if pix[x,y]<200:
 					pix[x,y]=0
-				print x,y,pix[x,y]
-			print ""
+				print(x,y,pix[x,y])
+			print("")
 
 	def countSaturated(self):
 		im=Image.open(self.filename)
@@ -70,7 +69,7 @@ class BeamCenter:
 		thresh=ave*3.0
 
 		if thresh > 240:
-			print "THRESH > 240"
+			print("THRESH > 240")
 			thresh=ave
 
 		ithresh=0
@@ -102,7 +101,7 @@ class BeamCenter:
 		npix=im.size[0]*im.size[1]
 		perc=float(satcnt)/float(npix)*100.0
 
-		#print "SAT %5d %8.3f"%(satcnt,perc)
+		print("SAT %5d SATURATED_AREA_PERCENT=%8.3f"%(satcnt,perc))
 		return satcnt,perc,isum_all
 		
 	def find2(self):
@@ -150,6 +149,7 @@ class BeamCenter:
 
 		# Date
 		dstr="%s"%datetime.datetime.now()
+		fontPath="/usr/share/fonts/truetype/ttf-dejavu/DejaVuSansMono-Bold.ttf"
 		font=ImageFont.truetype(fontPath,14)
 
 		str2="Pixel    (Y,Z)=(%8.2f,%8.2f)[pix]"%(cenx,ceny)
@@ -218,6 +218,7 @@ class BeamCenter:
 
 		# Date
 		dstr="%s"%datetime.datetime.now()
+		fontPath="/usr/share/fonts/truetype/ttf-dejavu/DejaVuSansMono-Bold.ttf"
 		font=ImageFont.truetype(fontPath,14)
 
 		str2="Pixel    (Y,Z)=(%8.2f,%8.2f)[pix]"%(cenx,ceny)
@@ -293,7 +294,7 @@ class BeamCenter:
 		# Test protocol 2
 		tx2,ty2=self.gravAbove(im,200,two_flag=True)
 
-		print "Compare O:%5d%5d, T1:%5d%5d, T2:%5d%5d"%(ox,oy,tx1,ty1,tx2,ty2)
+		print("Compare O:%5d%5d, T1:%5d%5d, T2:%5d%5d"%(ox,oy,tx1,ty1,tx2,ty2))
 		cenx=tx1
 		ceny=ty1
 
@@ -305,6 +306,8 @@ class BeamCenter:
 
 		# Date
 		dstr="%s"%datetime.datetime.now()
+		#fontPath="/usr/share/fonts/truetype/ttf-dejavu/DejaVuSansMono-Bold.ttf"
+		fontPath="/usr/share/fonts/dejavu/DejaVuSansMono.ttf"
 		font=ImageFont.truetype(fontPath,14)
 
 		str2="Pixel    (Y,Z)=(%8.2f,%8.2f)[pix]"%(cenx,ceny)
@@ -331,4 +334,4 @@ if __name__=="__main__":
 	#print p.getSummed()
 	#print p.find2()
 	#print p.damp()
-	print p.check()
+	print(p.findRobust())
