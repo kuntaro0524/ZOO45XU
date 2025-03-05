@@ -59,17 +59,15 @@ class LoopMeasurement:
         # Kuntaro Log file
         self.logger = logging.getLogger('ZOO').getChild("LoopMeasurement")
 
-        # 10um step raster scan
-        self.beamsize_thresh_10um = 20.0 #[um]
-        self.flag10um = False
+        # Detailed raster scan with larger beamsize
+        # copied from ZOO45XU 2025/02/27 10:00AM K. Hirata
+        self.isSpecialRasterStep = False
+        self.special_raster_step = 10.0 # [um]
+        self.maximum_scan_speed = 1000.0 # [um]
 
     # 2015/11/21 horizontal, vertical beamsize
     def setPhotonDensityLimit(self, photon_density_limit):
         self.photon_density_limit = photon_density_limit
-
-    def setMinBeamsize10umRaster(self, beamsize_thresh):
-        self.flag10um = True
-        self.beamsize_thresh_10um = beamsize_thresh
 
     # 2015/11/21 horizontal, vertical beamsize
     # Penging 2019/04/20 at BL45XU K.Hirata
@@ -82,6 +80,11 @@ class LoopMeasurement:
 
     def setWavelength(self, wavelength):
         self.wavelength = wavelength
+
+    # This was copied from 'ZOO45XU' on 2025/02/27 10:00AM K. Hirata
+    def setSpecialRasterStep(self, raster_step_um):
+        self.isSpecialRasterStep = True
+        self.special_raster_step = raster_step_um
 
     def captureImage(self, capture_name):
         self.dev.prepCentering()
@@ -431,13 +434,13 @@ class LoopMeasurement:
             # Schedule setting (attenuator index)
             rss.setAttIndex(self.att_idx)
 
-        # 2020/11/02 Coded for BL45XU
-        # If this flag is 'True', raster scan is always conducted by using 10 um step.
-        if raster_hbeam >= self.beamsize_thresh_10um or raster_vbeam >= self.beamsize_thresh_10um:
-            if self.flag10um:
-                vstep_um = 10.0
-                hstep_um = 10.0
-                exp_raster = 1/100.0 # 100 Hz is fixed now
+        # 2020/11/18 K. Hirata modified.
+        # copied from ZOO45XU code on 2025/02/27 10:00AM
+        if self.isSpecialRasterStep:
+            vstep_um = self.special_raster_step
+            hstep_um = self.special_raster_step
+            # exposure time for this raster scan will be fixed
+            exp_raster = self.special_raster_step / self.maximum_scan_speed
 
         # Scan points for vertical and horizontal
         if scan_mode == "2D" or scan_mode=="2d":
@@ -845,6 +848,7 @@ class LoopMeasurement:
             # change the value
             exp_time = mod_exp
 
+        # This is now only for BL44XU
         else:
             # Definition of attenuator index
             attfac = AttFactor.AttFactor()

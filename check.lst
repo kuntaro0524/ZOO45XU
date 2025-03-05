@@ -1,0 +1,13 @@
+#############################
+# LoopMeasurement.py
+#############################
+
+# BSSconfig.py で得ている情報とはなんだろうか？
+# BSSconfig4	1.py では何が異なっているのだろうか？
+
+# Beam monitor, Beam stopperなどをどう制御するのか、はzooallを入れていって
+# 修正を都度繰り返すしかないと思われ
+BL45XU/BL41XUでは積極的にwebsocketを利用するべきだろう。
+BL45XUのビーム調整スクリプトが入っているかどうか＠ZooNavigator.pyは確認事項だろう
+			
+

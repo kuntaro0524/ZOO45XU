@@ -489,6 +489,74 @@ class Zoo:
         recstr = self.communicate(com)
         return recstr
 
+    # Puck exchanging robots
+    def runScriptOnBSS(self, script_name):
+        com = "put/run_script/%s" % script_name
+        recstr = self.communicate(com)
+        return recstr
+
+    def pe_exchange_pucks(self, space_puck, target_puck):
+        com = "put/puck/exchange_%s_%s" % (space_puck, target_puck)
+        recstr = self.communicate(com)
+        try:
+            self.waitTillReady(isPE=True)
+        except MyException, ttt:
+            raise MyException("exchangeSample: failed. %s"%ttt.args[0])
+
+    def pe_mount_puck(self, target_puck):
+        com = "put/puck/mount_%s" % (target_puck)
+        recstr = self.communicate(com)
+        try:
+            self.waitTillReady(isPE=True)
+        except MyException, ttt:
+            raise MyException("exchangeSample: failed. %s"%ttt.args[0])
+
+    def pe_unmount_puck(self, space_puck):
+        com = "put/puck/unmount_%s" % (space_puck)
+        recstr = self.communicate(com)
+        try:
+            self.waitTillReady(isPE=True)
+        except MyException, ttt:
+            raise MyException("exchangeSample: failed. %s"%ttt.args[0])
+
+    def pe_clean_both(self):
+        com = "put/puck/cleaningall"
+        recstr = self.communicate(com)
+        try:
+            self.waitTillReady(isPE=True)
+        except MyException, ttt:
+            raise MyException("exchangeSample: failed. %s"%ttt.args[0])
+
+    def pe_clean_stock(self):
+        com = "put/puck/cleaningstock"
+        recstr = self.communicate(com)
+        try:
+            self.waitTillReady(isPE=True)
+        except MyException, ttt:
+            raise MyException("exchangeSample: failed. %s"%ttt.args[0])
+
+    def pe_clean_robot(self):
+        com = "put/puck/cleaningrobo"
+        recstr = self.communicate(com)
+        try:
+            self.waitTillReady(isPE=True)
+        except MyException, ttt:
+            raise MyException("exchangeSample: failed. %s"%ttt.args[0])
+
+    def pe_get_puck(self, puckid):
+        com = "get/puck/puckid_%s" % puckid
+        recstr = self.communicate(com)
+        puckid=(recstr.split('/'))[3]
+        print("PuckID=", puckid)
+        return puckid
+        #RETURN?: puck/get/(BSS pid)_pxbl_server/bbb
+
+    def pe_query(self):
+        com = "put/puck/query"
+        # RETURN(?): puck/get/(BSS pid)_pxbl_server/ret_val/errcode
+        recstr = self.communicate(com)
+        return recstr
+
 if __name__ == "__main__":
     # Logging setting
     # open configure file
