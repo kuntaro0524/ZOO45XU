@@ -145,7 +145,9 @@ class CoaxImage:
         # 2019/05/16 updated by K. Hirata
         #return 3.2439 #[um/pixel] at x3.0 magnification
         # 2021/04/13 updated by K. Hirata (ubuntu video)
-        return 6.087
+        # return 6.087
+        # 2025/10/01 updated by N.Mizuno
+        return 4.88
 
         """ ORIGINAL CODE
         if zoom == 3.0:

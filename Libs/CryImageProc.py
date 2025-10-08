@@ -33,8 +33,9 @@ class CryImageProc():
             # threshold in binarization
             self.bin_thresh = 30
         if beamline == "BL45XU":
-            #self.pix_size = 3.2439 #[um]
-            self.pix_size = 6.087 #[um] # 2021/03/26 Ubutu
+            # self.pix_size = 3.2439 #[um]
+            # self.pix_size = 6.087 #[um] # 2021/03/26 Ubutu
+            self.pix_size = 4.88 #[um] # 2025/10/01 Ubutu
             self.gonio_direction = "FROM_LEFT"
             # threshold in binarization
             self.bin_thresh = 10
