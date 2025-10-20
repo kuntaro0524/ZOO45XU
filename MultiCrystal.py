@@ -44,10 +44,10 @@ class MultiCrystal:
         self.isSlow = False
         self.isReadBeamSize = False
         self.isShutterless = False
-        if beamline == "BL32XU" or "BL41XU":
+        if beamline == "BL32XU" or "BL41XU" or "BL45XU":
             self.data_suffix = "h5"
-        if beamline == "BL45XU":
-            self.data_suffix = "cbf"
+        #if beamline == "BL45XU":
+            #self.data_suffix = "cbf"
 
         # Is this valid only for BL32XU? K.Hirata 190412
         self.oscillation_delay = 100 #msec

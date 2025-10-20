@@ -1,2 +1,5 @@
 Log/
 ZooLogs/
+*.ppm
+./BackImages/
+*/*.ppm
