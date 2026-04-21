@@ -4,3 +4,5 @@ Log/
 Test/
 ZooLogs/
 BackImages/
+*.pyc
+*/*.pyc
