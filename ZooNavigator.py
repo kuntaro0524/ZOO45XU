@@ -322,6 +322,7 @@ class ZooNavigator():
                 self.processLoop(cond, checkEnergyFlag=True)
                 self.logger.info("ZN: processLoop has been finished for this pin.")
             except:
+                self.logger.error("ZN: exception in processLoop: %s" % traceback.format_exc())
                 if self.num_pins == 0:
                     message = "Exception in ZN.processLoop: Please check CSV file or ZOODB file."
                 else:

@@ -4,6 +4,7 @@ import os
 import socket
 import time
 import datetime
+import math
 
 sys.path.append("/isilon/BL45XU/BLsoft/PPPP/")
 
@@ -143,19 +144,37 @@ class Device(Singleton.Singleton):
         en = self.mono.getE()
         # preparation
         self.prepMeasureFlux()
-        # Measurement
-        ipin, iic = self.countPin(pin_ch=pin_ch)
-        print ipin, iic
-        pin_uA = ipin / 10.0
-        iic_nA = iic / 100.0
-        # Photon flux estimation
-        print pin_uA, "uA"
+        try:
+            # Fail safe: compare PIN counts with shutter closed/open to
+            # confirm that X-rays reach the sample position.
+            self.shutter.close()
+            closed = [self.countPin(pin_ch=pin_ch)[0] for i in range(3)]
+            self.shutter.open()
+            opened = [self.countPin(pin_ch=pin_ch)[0] for i in range(3)]
+            closed_total = sum(closed)
+            opened_total = sum(opened)
+            signal = float(opened_total - closed_total)
+            # Independent counting noise follows Poisson statistics. Require
+            # the open/closed difference to exceed five standard deviations.
+            noise = math.sqrt(opened_total + closed_total)
+            print "PIN counts (1 sec each): shutter closed=%s, open=%s, net=%.1f counts/sec, significance=%.2f sigma" % \
+                  (closed, opened, signal / 3.0, signal / noise if noise else 0.0)
+            if signal <= 0 or signal <= 5.0 * noise:
+                message = "Fatal error: PIN signal is not distinguishable from background " \
+                          "(shutter closed: %s, open: %s)" % (closed, opened)
+                print message
+                raise MyException.MyException(message)
 
-        if self.BL == "bl45xu":
-            pin_uA = 2.0 * pin_uA
-        ff = Flux.Flux(en)
-        phosec = ff.calcFluxFromPIN(pin_uA)
-        self.finishMeasureFlux()
+            pin_uA = (signal / 3.0) / 10.0
+            # Photon flux estimation
+            print pin_uA, "uA"
+
+            if self.BL == "bl45xu":
+                pin_uA = 2.0 * pin_uA
+            ff = Flux.Flux(en)
+            phosec = ff.calcFluxFromPIN(pin_uA)
+        finally:
+            self.finishMeasureFlux()
 
         return phosec
 
